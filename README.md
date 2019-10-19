@@ -16,3 +16,5 @@ Bus 001 Device 021: ID 0483:5740 STMicroelectronics STM32F407
 
 ![maple mini](https://github.com/vortex314/mqtt2serial/raw/master/doc/maple.jpeg)
 
+### MQTT SPY screenshot
+![maple mini](https://github.com/vortex314/mqtt2serial/raw/master/doc/mqtt-spy.png)
