@@ -80,8 +80,8 @@ bool ProtoThread::isReady() { return _ptLine == LineNumberInvalid; }
 //_______________________________________________________________________________________________________________
 //
 
-MqttSerial::MqttSerial()
-    : _loopbackTimer(1000, true, true), _connectTimer(2000, true, true) {}
+MqttSerial::MqttSerial(Stream& stream)
+    : _stream(stream),_loopbackTimer(1000, true, true), _connectTimer(2000, true, true) {}
 void MqttSerial::setup() {
   LOG(__FUNCTION__);
   txd.clear();
@@ -96,9 +96,9 @@ bool MqttSerial::loop() {
   PT_BEGIN();
   timeout(1000);
   while (true) {
-    PT_YIELD_UNTIL(Serial.available() || timeout() || _loopbackTimer.timeout());
-    if (Serial.available()) {
-      rxdSerial(Serial.readString());
+    PT_YIELD_UNTIL(_stream.available() || timeout() || _loopbackTimer.timeout());
+    if (_stream.available()) {
+      rxdSerial(_stream.readString());
     };
     if (_connectTimer.timeout()) {
       if (millis() > (_loopbackReceived + 2000)) {
@@ -159,8 +159,8 @@ void MqttSerial::subscribe(String topic) {
 void MqttSerial::sendSerial() {
   String output = "";
   serializeJson(txd, output);
-  Serial.println(output);
-  Serial.flush();
+  _stream.println(output);
+  _stream.flush();
 }
 bool MqttSerial::isConnected() { return _connected; }
 

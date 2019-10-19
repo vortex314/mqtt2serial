@@ -150,6 +150,7 @@ private:
   String rxdString;
   bool _connected = false;
   String _loopbackTopic;
+  Stream& _stream;
   Timer _loopbackTimer;
   Timer _connectTimer;
   uint64_t _loopbackReceived;
@@ -159,7 +160,7 @@ private:
   MqttCallback _callback;
 
 public:
-  MqttSerial();
+  MqttSerial(Stream& stream );
   void setup();
   bool loop();
   void onMqttPublish(MqttCallback callback) ;

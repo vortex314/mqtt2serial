@@ -74,7 +74,7 @@ public:
 //_____________________________________ protothreads running _____
 //
 
-MqttSerial mqtt;
+MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
 Publisher publisher(mqtt, ledBlinkerBlue);
 
@@ -83,10 +83,13 @@ void mqttCallback(String topic, String message) {
 }
 
 void setup() {
+//  USBSerial serial;
+ // serial.begin();
   Serial.begin(115200);
+  //Serial1.begin(115200, SERIAL_8E1);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
-  Sys::hostname = "stellaris";
-  Sys::cpu = "lm4f120h5qr";
+  Sys::hostname = "maple";
+  Sys::cpu = "stm32f103rb";
   mqtt.onMqttPublish(mqttCallback);
   ProtoThread::setupAll();
 }
