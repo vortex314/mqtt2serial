@@ -75,8 +75,8 @@ public:
 #define PIN_LED 2
 
 MqttSerial mqtt(Serial);
-LedBlinker ledBlinkerBlue(PIN_LED, 100);
-Publisher publisher(mqtt, ledBlinkerBlue);
+LedBlinker ledBlinker(PIN_LED, 100);
+Publisher publisher(mqtt, ledBlinker);
 
 void mqttCallback(String topic, String message) {
   Serial.println(" RXD " + topic + "=" + message);
