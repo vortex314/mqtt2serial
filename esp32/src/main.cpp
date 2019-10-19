@@ -7,7 +7,7 @@
 
 //_______________________________________________________________________________________________________________
 //
-#define PIN_LED PB1
+#define PIN_LED 5
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
@@ -60,7 +60,7 @@ public:
         _mqtt.publish(_systemPrefix + "upTime", String(millis()));
         _mqtt.publish(_systemPrefix + "build", Sys::build);
         _mqtt.publish(_systemPrefix + "cpu", Sys::cpu);
-        _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
+  //      _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
         _ledBlinker.delay(1000);
       } else
         _ledBlinker.delay(100);
@@ -85,8 +85,8 @@ void mqttCallback(String topic, String message) {
 void setup() {
   Serial.begin(115200);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
-  Sys::hostname = "maple";
-  Sys::cpu = "stm32f103rb";
+  Sys::hostname = "esp32";
+  Sys::cpu = "esp32";
   mqtt.onMqttPublish(mqttCallback);
   ProtoThread::setupAll();
 }
