@@ -7,7 +7,6 @@
 
 //_______________________________________________________________________________________________________________
 //
-#define PIN_LED 5
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
@@ -73,6 +72,7 @@ public:
 //
 //_____________________________________ protothreads running _____
 //
+#define PIN_LED 2
 
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
