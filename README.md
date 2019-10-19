@@ -1,7 +1,11 @@
 # Microcontroller part for the serial to mqtt communication
-### LM4F120 Launchpad - Arduino
+### LM4F120 Launchpad 
+Framework = Arduino
+IDE = Visual Code + PlatformIO
 ![Stellaris](https://github.com/vortex314/mqtt2serial/raw/master/doc/stellaris.jpeg)
-### maple mini LeafLabs - Arduino
+### maple mini LeafLabs 
+Framework = Arduino
+IDE = Visual Code + PlatformIO
 This is a maple leaflabs board, programmed through a STLINKV2 clone.
 The USB connection will present itself as an USB CDC device : 
 ``
