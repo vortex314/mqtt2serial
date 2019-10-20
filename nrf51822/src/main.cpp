@@ -7,7 +7,7 @@
 
 //_______________________________________________________________________________________________________________
 //
-#define PIN_LED PF_1
+#define PIN_LED 20
 
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;

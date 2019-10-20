@@ -7,8 +7,6 @@
 
 //_______________________________________________________________________________________________________________
 //
-#define PIN_LED PF_1
-
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
@@ -61,7 +59,7 @@ public:
         _mqtt.publish(_systemPrefix + "upTime", String(millis()));
         _mqtt.publish(_systemPrefix + "build", Sys::build);
         _mqtt.publish(_systemPrefix + "cpu", Sys::cpu);
-        _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
+  //      _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
         _ledBlinker.delay(1000);
       } else
         _ledBlinker.delay(100);
@@ -74,10 +72,11 @@ public:
 //
 //_____________________________________ protothreads running _____
 //
+#define PIN_LED D0
 
 MqttSerial mqtt(Serial);
-LedBlinker ledBlinkerBlue(PIN_LED, 100);
-Publisher publisher(mqtt, ledBlinkerBlue);
+LedBlinker ledBlinker(PIN_LED, 100);
+Publisher publisher(mqtt, ledBlinker);
 
 void mqttCallback(String topic, String message) {
   Serial.println(" RXD " + topic + "=" + message);
@@ -86,8 +85,8 @@ void mqttCallback(String topic, String message) {
 void setup() {
   Serial.begin(115200);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
-  Sys::hostname = "stellaris";
-  Sys::cpu = "lm4f120h5qr";
+  Sys::hostname = "esp8266";
+  Sys::cpu = "esp8266";
   mqtt.onMqttPublish(mqttCallback);
   ProtoThread::setupAll();
 }
