@@ -51,8 +51,8 @@ void loopBLE() {
   BLESerial.poll();
 
   forward();
-  loopback();
- // spam();
+//  loopback();
+//  spam();
 }
 
 
@@ -78,7 +78,7 @@ void spam() {
   if (BLESerial) {
     BLESerial.print(millis());
     BLESerial.println(" tick-tacks!");
-    delay(1000);
+    delay(100);
   }
 }
 

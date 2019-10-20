@@ -48,8 +48,8 @@ int BLESerial::available(void) {
   BLEPeripheral::poll();
   int retval = (this->_rxHead - this->_rxTail + sizeof(this->_rxBuffer)) % sizeof(this->_rxBuffer);
   #ifdef BLE_SERIAL_DEBUG
-    Serial.print(F("BLESerial::available() = "));
-    Serial.println(retval);
+    if(retval){Serial.print(F("BLESerial::available() = "));
+    Serial.println(retval);}
   #endif
   return retval;
 }
@@ -110,8 +110,9 @@ size_t BLESerial::write(uint8_t byte) {
 BLESerial::operator bool() {
   bool retval = BLEPeripheral::connected();
   #ifdef BLE_SERIAL_DEBUG
+  if(retval){
     Serial.print(F("BLESerial::operator bool() = "));
-    Serial.println(retval);
+    Serial.println(retval);}
   #endif
   return retval;
 }
