@@ -15,6 +15,7 @@ $ dmesg
 [Do Okt 17 19:59:28 2019] usb 1-1.2.3: SerialNumber: 8D8134785748
 [Do Okt 17 19:59:28 2019] cdc_acm 1-1.2.3:1.0: ttyACM2: USB ACM device
 ``
+
 ### maple mini LeafLabs 
 - Framework = Arduino
 - IDE = Visual Code + PlatformIO
@@ -26,12 +27,16 @@ Bus 001 Device 021: ID 0483:5740 STMicroelectronics STM32F407
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/maple.jpg" width="200" title="Maple mini 4$">
 ### MQTT SPY screenshot
 ![maple mini](https://github.com/vortex314/mqtt2serial/raw/master/doc/mqtt-spy.png)
+
 ### Test setup 
 
-4 different devices and 1 serial2mqtt handling all  communication.
-![microControllers](https://github.com/vortex314/mqtt2serial/raw/master/doc/ucs.jpg)
+5 different devices and 1 serial2mqtt handling all  communication.
+<img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/ucs.jpg" width="300" title="Stellaris Launchpad 5$">
+
 Top to bottom :
-- maple - stm32f103
+- nrf51822
 - esp32 - flashing a stm32 maple
 - esp8266
 - Stellaris Launchpas lm4f120h5qr
+- maple - stm32f103
+
