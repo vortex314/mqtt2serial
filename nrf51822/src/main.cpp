@@ -86,8 +86,8 @@ void mqttCallback(String topic, String message) {
 void setup() {
   Serial.begin(115200);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
-  Sys::hostname = "stellaris";
-  Sys::cpu = "lm4f120h5qr";
+  Sys::hostname = "nordic";
+  Sys::cpu = "nrf51822";
   mqtt.onMqttPublish(mqttCallback);
   ProtoThread::setupAll();
 }
