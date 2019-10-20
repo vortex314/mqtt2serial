@@ -29,9 +29,12 @@ Bus 001 Device 021: ID 0483:5740 STMicroelectronics STM32F407
 ### Test setup 
 
 4 different devices and 1 serial2mqtt handling all  communication.
-![microControllers](https://github.com/vortex314/mqtt2serial/raw/master/doc/ucs.jpg)
+<img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/ucs.jpg" width="300" title="Stellaris Launchpad 5$">
+
 Top to bottom :
-- maple - stm32f103
+- nrf51822
 - esp32 - flashing a stm32 maple
 - esp8266
 - Stellaris Launchpas lm4f120h5qr
+- - maple - stm32f103
+
