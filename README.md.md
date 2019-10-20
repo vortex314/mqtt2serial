@@ -1,4 +1,4 @@
-# Microcontroller part for the serial to mqtt communication
+# Arduino code mqtt over serial
 ### LM4F120 Launchpad 
 
  - Framework = Arduino
@@ -25,17 +25,19 @@ The USB connection will present itself as an USB CDC device :
 Bus 001 Device 021: ID 0483:5740 STMicroelectronics STM32F407
 ```
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/maple.jpg" width="200" title="Maple mini 4$">
-### nrf51822
 
+### nrf51822
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/nrf51822.jpeg" width="200" >
 
 ### MQTT SPY screenshot
-![maple mini](https://github.com/vortex314/mqtt2serial/raw/master/doc/mqtt-spy.png)
+
+<img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/mqtt-spy.png" width="200" >
 
 ### Test setup 
 
 5 different devices and 1 serial2mqtt handling all  communication.
-<img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/ucs.jpg" width="300" title="Stellaris Launchpad 5$">
+
+<img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/ucs.jpg" width="300" >
 
 Top to bottom :
 - nrf51822
