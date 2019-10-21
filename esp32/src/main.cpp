@@ -20,7 +20,7 @@ public:
     pinMode(_pin, OUTPUT);
     digitalWrite(_pin, 1);
   }
-  bool loop() {
+  void loop() {
     PT_BEGIN();
     while (true) {
       timeout(_delay);
@@ -52,7 +52,7 @@ public:
     LOG("Publisher started");
     _systemPrefix = "src/" + Sys::hostname + "/system/";
   }
-  bool loop() {
+  void loop() {
     PT_BEGIN();
     while (true) {
       if (_mqtt.isConnected()) {

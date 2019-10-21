@@ -1,3 +1,35 @@
+//This example code is in the Public Domain (or CC0 licensed, at your option.)
+//By Evandro Copercini - 2018
+//
+//This example creates a bridge between Serial and Classical Bluetooth (SPP)
+//and also demonstrate that SerialBT have the same functionalities of a normal Serial
+
+#include "BluetoothSerial.h"
+
+#if !defined(CONFIG_BT_ENABLED) || !defined(CONFIG_BLUEDROID_ENABLED)
+#error Bluetooth is not enabled! Please run `make menuconfig` to and enable it
+#endif
+
+BluetoothSerial SerialBT;
+
+void setupBT() {
+  Serial.begin(115200);
+  SerialBT.begin("ESP32test"); //Bluetooth device name
+  Serial.println("The device started, now you can pair it with bluetooth!");
+}
+
+void loopBT() {
+  if (Serial.available()) {
+    SerialBT.write(Serial.read());
+  }
+  if (SerialBT.available()) {
+    Serial.write(SerialBT.read());
+  }
+  delay(20);
+}
+
+
+
 #include <Arduino.h>
 
 #include "proto.h"
@@ -7,7 +39,6 @@
 
 //_______________________________________________________________________________________________________________
 //
-#define PIN_LED PB1
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
@@ -60,7 +91,7 @@ public:
         _mqtt.publish(_systemPrefix + "upTime", String(millis()));
         _mqtt.publish(_systemPrefix + "build", Sys::build);
         _mqtt.publish(_systemPrefix + "cpu", Sys::cpu);
-        _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
+  //      _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
         _ledBlinker.delay(1000);
       } else
         _ledBlinker.delay(100);
@@ -73,10 +104,11 @@ public:
 //
 //_____________________________________ protothreads running _____
 //
+#define PIN_LED 2
 
-MqttSerial mqtt(Serial);
-LedBlinker ledBlinkerBlue(PIN_LED, 100);
-Publisher publisher(mqtt, ledBlinkerBlue);
+MqttSerial mqtt(SerialBT);
+LedBlinker ledBlinker(PIN_LED, 100);
+Publisher publisher(mqtt, ledBlinker);
 
 void mqttCallback(String topic, String message) {
   Serial.println(" RXD " + topic + "=" + message);
@@ -84,9 +116,10 @@ void mqttCallback(String topic, String message) {
 
 void setup() {
   Serial.begin(115200);
+  setupBT();
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
-  Sys::hostname = "maple";
-  Sys::cpu = "stm32f103rb";
+  Sys::hostname = "esp32-bluetooth";
+  Sys::cpu = "esp32";
   mqtt.onMqttPublish(mqttCallback);
   ProtoThread::setupAll();
 }

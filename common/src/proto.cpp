@@ -92,7 +92,7 @@ void MqttSerial::setup() {
   _loopbackReceived = 0;
 }
 
-bool MqttSerial::loop() {
+void MqttSerial::loop() {
   PT_BEGIN();
   timeout(1000);
   while (true) {

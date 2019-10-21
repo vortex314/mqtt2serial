@@ -57,7 +57,7 @@ public:
   virtual ~ProtoThread();
   bool timeout();
   void timeout(uint32_t delay);
-  virtual bool loop() = 0;
+  virtual void loop() = 0;
   virtual void setup() = 0;
   static void setupAll();
   static void loopAll();
@@ -78,7 +78,7 @@ public:
   default:;                                                                    \
     }                                                                          \
     stop();                                                                    \
-    return false;
+    return ;
 
 // Cause protothread to wait until given condition is true.
 #define PT_WAIT_UNTIL(condition)                                               \
@@ -133,7 +133,7 @@ public:
     _ptLine = __LINE__;                                                        \
   case __LINE__:                                                               \
     if (!ptYielded || !(condition))                                            \
-      return true;                                                             \
+      return ;                                                             \
   } while (0)
 //_______________________________________________________________________________________________________________
 //
@@ -162,7 +162,7 @@ private:
 public:
   MqttSerial(Stream& stream );
   void setup();
-  bool loop();
+  void loop();
   void onMqttPublish(MqttCallback callback) ;
   void rxdSerial(String s);
   void publish(String topic, String message) ;
