@@ -82,8 +82,9 @@ Publisher publisher(mqtt, ledBlinkerBlue);
 void mqttCallback(String topic, String message) {
   Serial.println(" RXD " + topic + "=" + message);
 }
-
+extern void tester();
 void setup() {
+  tester();
   Serial.begin(115200);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
   Sys::hostname = "stellaris";
