@@ -17,7 +17,7 @@ public:
         uint16_t word;
     };
     Event();
-    Event(uint16_t w);
+    Event(int w);
     Event(int src, int t);
     bool operator==(Event &second);
 };
@@ -60,20 +60,16 @@ class AbstractSource
 public:
     AbstractSource();
     void addSink(AbstractSink *_sink);
-    virtual void operator>>(AbstractSink &sink);
 
-    virtual void operator>>(EventHandler handler);
-    virtual AbstractSource& operator>>(Event event);
+    void operator>>(EventHandler handler);
+    AbstractSource &operator>>(Event event);
     AbstractSource &operator>>(AbstractFlow &flow);
-
-private:
+    void operator>>(AbstractSink &flow);
     void send(Event event);
+
 public:
     uint8_t id();
-    void id(uint8_t id) ;
-    AbstractSource&  map(int in,int out);
-    AbstractSource& filter(int in);
-    AbstractSource& on(int in);
+    void id(uint8_t id);
 };
 
 //______________________________________________________________________________
@@ -82,7 +78,6 @@ class AbstractFlow : public AbstractSink, public AbstractSource
 {
 };
 
-
 //______________________________________________________________________________
 //
 class Sink : public AbstractSink
@@ -90,10 +85,10 @@ class Sink : public AbstractSink
     CircularBuffer<Event> _buffer;
 
 public:
-    Sink(uint32_t size) ;
-    Sink(uint32_t size, EventHandler handler) ;
-    void recv(Event event) ;
-    bool getNext(Event &event) ;
+    Sink(uint32_t size);
+    Sink(uint32_t size, EventHandler handler);
+    void recv(Event event);
+    bool getNext(Event &event);
 };
 //______________________________________________________________________________
 //
@@ -131,8 +126,8 @@ class Source : public AbstractSource
 {
 
 public:
-    Source(){};
+    Source();
     void on(Event event, EventHandler handler);
     AbstractFlow &filter(int type);
-    void invoke(Event event, EventHandler handler) ;
+    void invoke(Event event, EventHandler handler);
 };
