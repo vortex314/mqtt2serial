@@ -2,9 +2,9 @@
 
 //_______________________________________________________________________________________________________________
 //
-String Sys::cpu = "unknown";
-String Sys::build = __DATE__ " " __TIME__;
-String Sys::hostname = "Arduino";
+std::string Sys::cpu = "unknown";
+std::string Sys::build = __DATE__ " " __TIME__;
+std::string Sys::hostname = "Arduino";
 
 Timer::Timer(uint32_t delta, bool repeat, bool actif) {
   _delta = delta;
@@ -48,7 +48,6 @@ std::vector<ProtoThread *> *ProtoThread::pts() {
 
 ProtoThread::ProtoThread() : _defaultTimer(1, false, false), _ptLine(0) {
   //      LOG(" new protoThread");
-  _bits = 0;
   pts()->push_back(this);
 }
 
@@ -63,7 +62,7 @@ void ProtoThread::timeout(uint32_t delay) {
 }
 
 void ProtoThread::setupAll() {
-  LOG(" found " + String(pts()->size()) + " protothreads.");
+  printf(" found %d protothreads.",pts()->size());
   for (ProtoThread *pt : *pts()) {
     pt->setup();
   }
@@ -78,28 +77,13 @@ void ProtoThread::restart() { _ptLine = 0; }
 void ProtoThread::stop() { _ptLine = LineNumberInvalid; }
 bool ProtoThread::isRunning() { return _ptLine != LineNumberInvalid; }
 bool ProtoThread::isReady() { return _ptLine == LineNumberInvalid; }
-
-bool ProtoThread::setBits(uint32_t bits) {
-  uint32_t expected = _bits;
-  uint32_t desired = _bits | bits;
-  return _bits.compare_exchange_strong(expected, desired);
-}
-
-bool ProtoThread::clrBits(uint32_t bits) {
-  uint32_t expected = _bits;
-  uint32_t desired = _bits & bits;
-  return _bits.compare_exchange_strong(expected, desired);
-}
-
-bool ProtoThread::hasBits(uint32_t bits) { return (_bits & bits); }
 //_______________________________________________________________________________________________________________
 //
 
-MqttSerial::MqttSerial(Stream &stream)
-    : _stream(stream), _loopbackTimer(1000, true, true),
-      _connectTimer(3000, true, true) {}
+MqttSerial::MqttSerial(Stream& stream)
+    : _stream(stream),_loopbackTimer(1000, true, true), _connectTimer(2000, true, true) {}
 void MqttSerial::setup() {
-  //  LOG(__FUNCTION__);
+//  LOG(__FUNCTION__);
   txd.clear();
   rxd.clear();
   _loopbackTopic = "dst/" + Sys::hostname + "/system/loopback";
@@ -112,15 +96,14 @@ void MqttSerial::loop() {
   PT_BEGIN();
   timeout(1000);
   while (true) {
-    PT_YIELD_UNTIL(_stream.available() || timeout() ||
-                   _loopbackTimer.timeout());
+    PT_YIELD_UNTIL(_stream.available() || timeout() || _loopbackTimer.timeout());
     if (_stream.available()) {
       rxdSerial(_stream.readString());
     };
     if (_connectTimer.timeout()) {
       if (millis() > (_loopbackReceived + 2000)) {
         _connected = false;
-        subscribe("dst/" + Sys::hostname + "/#");
+        subscribe("dst/"+Sys::hostname+"/#");
         publish(_loopbackTopic, "true");
       } else {
         _connected = true;
@@ -136,7 +119,7 @@ void MqttSerial::loop() {
 }
 void MqttSerial::onMqttPublish(MqttCallback callback) { _callback = callback; }
 
-void MqttSerial::rxdSerial(String s) {
+void MqttSerial::rxdSerial(std::string s) {
   for (uint32_t i = 0; i < s.length(); i++) {
     char c = s.charAt(i);
     if ((c == '\n' || c == '\r')) {
@@ -144,10 +127,10 @@ void MqttSerial::rxdSerial(String s) {
         deserializeJson(rxd, rxdString);
         JsonArray array = rxd.as<JsonArray>();
         if (!array.isNull()) {
-          if (array[1].as<String>() == _loopbackTopic) {
+          if (array[1].as<std::string>() == _loopbackTopic) {
             _loopbackReceived = millis();
           } else
-            _callback(array[1].as<String>(), array[2].as<String>());
+            _callback(array[1].as<std::string>(), array[2].as<std::string>());
         }
         rxdString = "";
       }
@@ -158,7 +141,7 @@ void MqttSerial::rxdSerial(String s) {
   }
 }
 
-void MqttSerial::publish(String topic, String message) {
+void MqttSerial::publish(std::string topic, std::string message) {
   txd.clear();
   txd.add((int)CMD_PUBLISH);
   txd.add(topic);
@@ -166,7 +149,7 @@ void MqttSerial::publish(String topic, String message) {
   sendSerial();
 }
 
-void MqttSerial::subscribe(String topic) {
+void MqttSerial::subscribe(std::string topic) {
   txd.clear();
   txd.add((int)CMD_SUBSCRIBE);
   txd.add(topic);
@@ -174,7 +157,7 @@ void MqttSerial::subscribe(String topic) {
 }
 
 void MqttSerial::sendSerial() {
-  String output = "";
+  std::string output = "";
   serializeJson(txd, output);
   _stream.println(output);
   _stream.flush();

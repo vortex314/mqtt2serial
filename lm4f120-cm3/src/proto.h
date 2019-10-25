@@ -3,24 +3,17 @@
 #include <ArduinoJson.h>
 #undef min
 #undef max
-#include <atomic>
 #include <vector>
+#include <string>
+#include <stdio.h>
 
-#define LOG(s)                                                                 \
-  {                                                                            \
-    Serial.print(millis());                                                    \
-    Serial.print(" " __FILE__);                                                \
-    Serial.print(":");                                                         \
-    Serial.print(__LINE__);                                                    \
-    Serial.print(" : ");                                                       \
-    Serial.println(s);                                                         \
-  }
+#define LOG(s)     printf("%ld %s:%d : %s",millis(), __FILE__,__LINE__,s)
 
 class Sys {
 public:
-  static String hostname;
-  static String cpu;
-  static String build;
+  static std::string hostname;
+  static std::string cpu;
+  static std::string build;
 };
 
 //_______________________________________________________________________________________________________________
@@ -51,7 +44,6 @@ class ProtoThread {
   Timer _defaultTimer;
   static const LineNumber LineNumberInvalid = (LineNumber)(-1);
   static std::vector<ProtoThread *> *pts();
-  std::atomic<uint32_t> _bits;
 
 public:
   LineNumber _ptLine;
@@ -67,9 +59,6 @@ public:
   void stop();
   bool isRunning();
   bool isReady();
-  bool setBits(uint32_t bits);
-  bool clrBits(uint32_t bits);
-  bool hasBits(uint32_t bits);
 };
 
 // Declare start of protothread (use at start of Run() implementation).
@@ -83,7 +72,7 @@ public:
   default:;                                                                    \
     }                                                                          \
     stop();                                                                    \
-    return;
+    return ;
 
 // Cause protothread to wait until given condition is true.
 #define PT_WAIT_UNTIL(condition)                                               \
@@ -138,7 +127,7 @@ public:
     _ptLine = __LINE__;                                                        \
   case __LINE__:                                                               \
     if (!ptYielded || !(condition))                                            \
-      return;                                                                  \
+      return ;                                                             \
   } while (0)
 //_______________________________________________________________________________________________________________
 //
@@ -147,15 +136,15 @@ public:
 
 class MqttSerial : public ProtoThread {
 public:
-  typedef void (*MqttCallback)(String topic, String message);
+  typedef void (*MqttCallback)(std::string topic, std::string message);
 
 private:
   StaticJsonDocument<256> txd;
   StaticJsonDocument<256> rxd;
-  String rxdString;
+  std::string rxdString;
   bool _connected = false;
-  String _loopbackTopic;
-  Stream &_stream;
+  std::string _loopbackTopic;
+  Stream& _stream;
   Timer _loopbackTimer;
   Timer _connectTimer;
   uint64_t _loopbackReceived;
@@ -165,13 +154,13 @@ private:
   MqttCallback _callback;
 
 public:
-  MqttSerial(Stream &stream);
+  MqttSerial(Stream& stream );
   void setup();
   void loop();
-  void onMqttPublish(MqttCallback callback);
-  void rxdSerial(String s);
-  void publish(String topic, String message);
-  void subscribe(String topic);
+  void onMqttPublish(MqttCallback callback) ;
+  void rxdSerial(std::string s);
+  void publish(std::string topic, std::string message) ;
+  void subscribe(std::string topic);
   void sendSerial();
   bool isConnected();
 };
