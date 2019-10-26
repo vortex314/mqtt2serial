@@ -1,33 +1,32 @@
 
-#include <Streams.h>
-#include <functional>
-#include <stdint.h>
-#include <vector>
+#include "Streams.h"
 
-void std::__throw_bad_function_call()
+
+namespace std {
+  void __throw_length_error(char const*) {
+  while(1);
+  }
+  void __throw_bad_alloc(){
+  while(1);
+  }
+  void __throw_bad_function_call()
 {
   while (1)
     ;
 }
-/*
-void std::__throw_length_error(char const*){
-while(1);
 }
 
-void std::__throw_bad_alloc(char const*){
-while(1);
-}*/
 //______________________________________________________________________________
 //
-Event::Event() : word(0){};
+Event::Event() : _word(0){};
 
-Event::Event(int w) { word = w; }
+Event::Event(int w) { _word = w; }
 Event::Event(int src, int t)
 {
   source = src;
   type = t;
 }
-bool Event::operator==(Event &second) { return word == second.word; }
+bool Event::operator==(Event &second) { return _word == second._word; }
 
 //______________________________________________________________________________
 //
@@ -48,28 +47,30 @@ bool CircularBuffer<T>::empty()
 template <class T>
 bool CircularBuffer<T>::pop(T &ret)
 {
-  if (_readPtr != _writePtr)
+    	uint16_t newPos = (_readPtr + 1) % _size;
+
+  if (newPos != _writePtr)
   {
-    ret = _array[_readPtr];
-    if (++_readPtr == _size)
-    {
-      _readPtr = 0;
-    }
+    ret = _array[newPos];
+    _readPtr=newPos;
     return true;
   }
-  else
-  {
     return false;
-  }
 }
+template <class T>
+bool  CircularBuffer<T>::hasSpace() {
+	return ((_writePtr + 1) % _size) != _readPtr;
+}
+
 template <class T>
 void CircularBuffer<T>::push(T value)
 {
-  if (_writePtr != _readPtr)
+    uint16_t newPos = (_writePtr + 1) % _size;
+
+  if (newPos != _readPtr)
   {
     _array[_writePtr] = value;
-    if (++_writePtr == _size)
-      _writePtr = 0;
+    _writePtr=newPos;
   }
 }
 
@@ -85,10 +86,11 @@ typedef std::function<void(Event &)> EventHandler;
 AbstractSource::AbstractSource() { _id = _sourceIndex++; }
 
 void AbstractSource::addSink(AbstractSink *_sink) { _sinks.push_back(_sink); }
-void AbstractSource::operator>>(AbstractSink &sink) { _sinks.push_back(&sink); }
+void AbstractSource::operator>>(AbstractSink &sink) { addSink(&sink); }
 
 void AbstractSource::operator>>(EventHandler handler){
-
+  Invoker* invoker=new Invoker(handler);
+  addSink(invoker);
 };
 
 AbstractSource &AbstractSource::operator>>(Event event)
@@ -137,13 +139,13 @@ void Filter::recv(Event event)
 //______________________________________________________________________________
 //
 
-void Invoker::send(Event &event)
-{
-  if (_event.word == event.word)
-    _handler(event);
+
+Invoker::Invoker(EventHandler handler)
+    : _handler(handler){};
+
+void Invoker::recv(Event event){
+  _handler(event);
 }
-Invoker::Invoker(Event event, EventHandler handler)
-    : _event(event), _handler(handler){};
 
 Source::Source(){};
 void on(Event event, EventHandler handler) {}
@@ -163,12 +165,16 @@ public:
   enum
   {
     CONNECTED,
-    DISCONNECTED
+    DISCONNECTED,
+    PUBLISH
   };
-  const Event Connected,Disconnected;
-  Mqtt() : Connected(id(),CONNECTED),Disconnected(id(),DISCONNECTED) {
+  const Event Connected,Disconnected,Publish;
+  Mqtt() : Connected(id(),CONNECTED),Disconnected(id(),DISCONNECTED),Publish(id(),PUBLISH) {
   }
   void recv(Event event){};
+  void receiveLine(const String& line){
+      send(Connected);
+  };
 };
 
 class Led : public Sink
@@ -186,64 +192,39 @@ public:
   void blinkSlow(){};
 };
 
-class On : public AbstractFlow
-{
-  int _type;
+class SerialPort:public Source{
+  String _line;
+  public:
+  const Event RxdLine;
+  SerialPort(): _line(""),RxdLine(id(),1){
 
-public:
-  On(int type) { _type = type; };
-  static AbstractFlow &type(int type) { return *new On(type); }
-  void recv(Event event)
-  {
-    if (event.type == _type)
-      send(event);
-  };
-};
-
-class InvokeDirect : public Sink
-{
-  EventHandler _handler;
-
-public:
-  InvokeDirect(EventHandler handler) : Sink(0) { _handler = handler; };
-  void recv(Event event) { _handler(event); }
-  static InvokeDirect &call(EventHandler handler)
-  {
-    return *new InvokeDirect(handler);
+  }
+  const String& line() {
+    return _line;
   }
 };
 
-class MyEvent
-{
-  uint16_t _from;
-  uint16_t _type;
-  void *_data;
+
+class Receiver : public Sink {
+  public:
+  
 };
+
 
 void tester()
 {
   Source source;
   Sink sink(100);
   Event evt;
-  evt.word = (source.id() << 8) + 1;
+  evt._word = (source.id() << 8) + 1;
   //source >> sink;
-  Source serial;
+  SerialPort serial;
   Mqtt mqtt;
-  Led led;
+  Led ledBlue,ledGreen,ledRed;
 
-  mqtt >> mqtt.Connected >> [&led](Event event){ led.blinkFast();};
-  mqtt >> mqtt.Disconnected >> [&led](Event event){ led.blinkSlow();};
-  serial >> mqtt;
+  mqtt >> mqtt.Connected >> [&ledBlue](Event event){ ledBlue.blinkFast();};
+  mqtt >> mqtt.Disconnected >> [&ledBlue](Event event){ ledBlue.blinkSlow();};
+  serial >> serial.RxdLine >> [&mqtt,&serial](Event ev){mqtt.receiveLine(serial.line());};
+  //mqtt >> mqtt.Publish >> [&mqtt](Event ev){ return mqtt.topic()=="dst/me/";} ;
 
-  //Sink blinkFast(1, [&led](Event event) { led.blinkFast(); });
-
-  /*   mqtt.map(Mqtt::CONNECTED, Led::BLINK_SLOW) >> led;
-     mqtt.map(Mqtt::DISCONNECTED, Led::BLINK_FAST) >> led;
-     serial >> mqtt;
-
-     mqtt.on(Mqtt::DISCONNECTED) >> [](Event event){};
-
-     mqtt >> On::type(Mqtt::DISCONNECTED) >> InvokeDirect::call([&led](Event ev)
-     { led.blinkFast(); }); mqtt >> On::type(Mqtt::CONNECTED) >>
-     InvokeDirect::call([&led](Event ev) { led.blinkSlow(); });*/
 }

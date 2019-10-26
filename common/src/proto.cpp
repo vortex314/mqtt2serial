@@ -109,11 +109,12 @@ void MqttSerial::setup() {
 }
 
 void MqttSerial::loop() {
+  Event event;
   PT_BEGIN();
   timeout(1000);
   while (true) {
     PT_YIELD_UNTIL(_stream.available() || timeout() ||
-                   _loopbackTimer.timeout());
+                   _loopbackTimer.timeout() || getNext(event) );
     if (_stream.available()) {
       rxdSerial(_stream.readString());
     };
@@ -134,6 +135,11 @@ void MqttSerial::loop() {
   }
   PT_END();
 }
+
+void MqttSerial::recv(Event evt){
+  
+}
+
 void MqttSerial::onMqttPublish(MqttCallback callback) { _callback = callback; }
 
 void MqttSerial::rxdSerial(String s) {

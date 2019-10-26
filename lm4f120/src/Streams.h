@@ -1,8 +1,9 @@
+#include <Arduino.h>
 
 #include <stdint.h>
 #include <vector>
+#include <string>
 #include <functional>
-
 //______________________________________________________________________________
 //
 class Event
@@ -14,7 +15,7 @@ public:
             uint8_t source;
             uint8_t type;
         };
-        uint16_t word;
+        uint16_t _word;
     };
     Event();
     Event(int w);
@@ -34,6 +35,7 @@ class CircularBuffer
 public:
     CircularBuffer(uint32_t size);
     bool empty();
+    bool hasSpace();
     bool pop(T &ret);
     void push(T value);
 };
@@ -90,6 +92,9 @@ public:
     void recv(Event event);
     bool getNext(Event &event);
 };
+
+
+
 //______________________________________________________________________________
 //
 class Filter : public AbstractFlow
@@ -114,12 +119,11 @@ public:
 //
 class Invoker : public AbstractSink
 {
-    Event &_event;
     EventHandler _handler;
 
 public:
-    void send(Event &event);
-    Invoker(Event event, EventHandler handler);
+    Invoker(EventHandler handler);
+    void recv(Event);
 };
 
 class Source : public AbstractSource
@@ -130,4 +134,12 @@ public:
     void on(Event event, EventHandler handler);
     AbstractFlow &filter(int type);
     void invoke(Event event, EventHandler handler);
+};
+
+class Flow : public Sink,public Source {
+    public:
+    Flow(): Sink(10){
+
+    }
+
 };

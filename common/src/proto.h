@@ -5,6 +5,7 @@
 #undef max
 #include <atomic>
 #include <vector>
+#include <Streams.h>
 
 #define LOG(s)                                                                 \
   {                                                                            \
@@ -145,7 +146,7 @@ public:
 //_______________________________________________________________________________________________________________
 //
 
-class MqttSerial : public ProtoThread {
+class MqttSerial : public ProtoThread ,  Flow {
 public:
   typedef void (*MqttCallback)(String topic, String message);
 
@@ -168,6 +169,7 @@ public:
   MqttSerial(Stream &stream);
   void setup();
   void loop();
+  void recv(Event ev);
   void onMqttPublish(MqttCallback callback);
   void rxdSerial(String s);
   void publish(String topic, String message);
