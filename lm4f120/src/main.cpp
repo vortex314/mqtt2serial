@@ -81,6 +81,25 @@ public:
   }
 };
 //
+template <class T>
+class Async : public AbstractSink<T>,public ProtoThread {
+  CircularBuffer<T> _buffer;
+  AbstractSink<T>& _sink;
+ public:
+  Async(uint32_t size,AbstractSink<T>& sink) : _buffer(size),_sink(sink) {}
+  void recv(T event) { _buffer.push(event); };
+  void setup(){};
+  void loop(){
+    PT_BEGIN();
+    while(true){
+    PT_YIELD_UNTIL(!_buffer.empty());
+      T event;
+      _buffer.pop(event);
+      _sink.recv(event);
+    }
+    PT_END();
+  }
+};
 //_____________________________________ protothreads running _____
 //
 
@@ -100,6 +119,8 @@ void setup() {
     else if (s == DISCONNECTED)
       ledBlinkerBlue.delay(100);
   };
+
+  Async<MqttMessage> async(5,mqtt);
 
   mqtt >> [](MqttMessage m) {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);

@@ -90,6 +90,10 @@ class AbstractSource {
   };
 };
 
+template <class I,class O> 
+class Flow : public AbstractSink<I>,public AbstractSource<O> {
+} ;
+
 template <class T>
 class BufferedSink : public AbstractSink<T> {
   CircularBuffer<T> _buffer;
