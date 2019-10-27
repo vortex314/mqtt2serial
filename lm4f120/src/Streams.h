@@ -1,145 +1,106 @@
 #include <Arduino.h>
 
 #include <stdint.h>
-#include <vector>
-#include <string>
 #include <functional>
+#include <string>
+#include <vector>
 //______________________________________________________________________________
 //
-class Event
-{
-public:
-    union {
-        struct
-        {
-            uint8_t source;
-            uint8_t type;
-        };
-        uint16_t _word;
-    };
-    Event();
-    Event(int w);
-    Event(int src, int t);
-    bool operator==(Event &second);
+//______________________________________________________________________________
+//
+template <class T>
+class CircularBuffer {
+  T *_array;
+  uint32_t _writePtr;
+  uint32_t _readPtr;
+  uint32_t _size;
+
+ public:
+  CircularBuffer(uint32_t size) {
+    _array = new T[size];
+    _size = size;
+    _writePtr = 1;
+    _readPtr = 0;
+  };
+  bool empty() { return _readPtr == _writePtr; };
+  bool hasSpace() { return ((_writePtr + 1) % _size) != _readPtr; }
+
+  bool pop(T &ret) {
+    uint16_t newPos = (_readPtr + 1) % _size;
+
+    if (newPos != _writePtr) {
+      ret = _array[newPos];
+      _readPtr = newPos;
+      return true;
+    }
+    return false;
+  }
+  void push(T value) {
+    uint16_t newPos = (_writePtr + 1) % _size;
+
+    if (newPos != _readPtr) {
+      _array[_writePtr] = value;
+      _writePtr = newPos;
+    }
+  }
+};
+//______________________________________________________________________________
+//
+
+//______________________________________________________________________________
+//
+template <class T>
+class AbstractSink {
+ public:
+  virtual void recv(T) = 0;
 };
 //______________________________________________________________________________
 //
 template <class T>
-class CircularBuffer
-{
-    T *_array;
-    uint32_t _writePtr;
-    uint32_t _readPtr;
-    uint32_t _size;
+class Sink : public AbstractSink<T> {
+  std::function<void(T)> _handler;
 
-public:
-    CircularBuffer(uint32_t size);
-    bool empty();
-    bool hasSpace();
-    bool pop(T &ret);
-    void push(T value);
+ public:
+  Sink(){};
+  Sink(std::function<void(T)> handler) : _handler(handler){};
+  void handler(std::function<void(T)> handler) { _handler = handler; }
+  void recv(T event) { _handler(event); }
 };
 //______________________________________________________________________________
 //
-typedef std::function<void(Event &)> EventHandler;
-//______________________________________________________________________________
-//
-class AbstractSink
-{
-public:
-    virtual void recv(Event) = 0;
-};
-//______________________________________________________________________________
-//
-class AbstractFlow;
 
-class AbstractSource
-{
-    std::vector<AbstractSink *> _sinks;
-    static uint8_t _sourceIndex;
-    uint8_t _id;
+template <class T>
+class AbstractSource {
+  std::vector<AbstractSink<T> *> _sinks;
 
-public:
-    AbstractSource();
-    void addSink(AbstractSink *_sink);
-
-    void operator>>(EventHandler handler);
-    AbstractSource &operator>>(Event event);
-    AbstractSource &operator>>(AbstractFlow &flow);
-    void operator>>(AbstractSink &flow);
-    void send(Event event);
-
-public:
-    uint8_t id();
-    void id(uint8_t id);
-};
-
-//______________________________________________________________________________
-//
-class AbstractFlow : public AbstractSink, public AbstractSource
-{
-};
-
-//______________________________________________________________________________
-//
-class Sink : public AbstractSink
-{
-    CircularBuffer<Event> _buffer;
-
-public:
-    Sink(uint32_t size);
-    Sink(uint32_t size, EventHandler handler);
-    void recv(Event event);
-    bool getNext(Event &event);
-};
-
-
-
-//______________________________________________________________________________
-//
-class Filter : public AbstractFlow
-{
-    Event _match;
-
-public:
-    Filter(Event event);
-    void recv(Event event);
-};
-class Map : public AbstractFlow
-{
-    int _in;
-    int _out;
-
-public:
-    Map(Event in, Event out);
-    Map(Event in[], Event out[]);
-    void recv(Event event);
-};
-//______________________________________________________________________________
-//
-class Invoker : public AbstractSink
-{
-    EventHandler _handler;
-
-public:
-    Invoker(EventHandler handler);
-    void recv(Event);
-};
-
-class Source : public AbstractSource
-{
-
-public:
-    Source();
-    void on(Event event, EventHandler handler);
-    AbstractFlow &filter(int type);
-    void invoke(Event event, EventHandler handler);
-};
-
-class Flow : public Sink,public Source {
-    public:
-    Flow(): Sink(10){
-
+ public:
+  AbstractSource(){};
+  void addSink(AbstractSink<T> *_sink) {
+    Serial.println(" added Sink");
+    _sinks.push_back(_sink);
+  }
+  void operator>>(std::function<void(T)> handler) {
+    addSink(new Sink<T>(handler));
+  };
+  void operator>>(AbstractSink<T> &sink) { addSink(&sink); }
+  void emit(T event) {
+    for (AbstractSink<T> *_sink : _sinks) {
+      _sink->recv(event);
     }
-
+  };
 };
+
+template <class T>
+class BufferedSink : public AbstractSink<T> {
+  CircularBuffer<T> _buffer;
+
+ public:
+  BufferedSink(uint32_t size) : _buffer(size) {}
+  void recv(T event) { _buffer.push(event); };
+  bool getNext(T &event) { return _buffer.pop(event); }
+};
+//______________________________________________________________________________
+//
+//______________________________________________________________________________
+//
+typedef enum { CONNECTED, DISCONNECTED } Signal;

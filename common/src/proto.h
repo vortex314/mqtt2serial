@@ -3,22 +3,22 @@
 #include <ArduinoJson.h>
 #undef min
 #undef max
+#include <Streams.h>
 #include <atomic>
 #include <vector>
-#include <Streams.h>
 
-#define LOG(s)                                                                 \
-  {                                                                            \
-    Serial.print(millis());                                                    \
-    Serial.print(" " __FILE__);                                                \
-    Serial.print(":");                                                         \
-    Serial.print(__LINE__);                                                    \
-    Serial.print(" : ");                                                       \
-    Serial.println(s);                                                         \
+#define LOG(s)                  \
+  {                             \
+    Serial.print(millis());     \
+    Serial.print(" " __FILE__); \
+    Serial.print(":");          \
+    Serial.print(__LINE__);     \
+    Serial.print(" : ");        \
+    Serial.println(s);          \
   }
 
 class Sys {
-public:
+ public:
   static String hostname;
   static String cpu;
   static String build;
@@ -27,13 +27,13 @@ public:
 //_______________________________________________________________________________________________________________
 //
 class Timer {
-private:
+ private:
   uint32_t _delta;
   uint64_t _timeout;
   bool _repeat;
   bool _actif;
 
-public:
+ public:
   Timer(uint32_t delta, bool repeat, bool actif);
   bool isRepeating();
   void repeat(bool rep);
@@ -54,7 +54,7 @@ class ProtoThread {
   static std::vector<ProtoThread *> *pts();
   std::atomic<uint32_t> _bits;
 
-public:
+ public:
   LineNumber _ptLine;
   ProtoThread();
   virtual ~ProtoThread();
@@ -74,25 +74,24 @@ public:
 };
 
 // Declare start of protothread (use at start of Run() implementation).
-#define PT_BEGIN()                                                             \
-  bool ptYielded = true;                                                       \
-  switch (_ptLine) {                                                           \
-  case 0:
+#define PT_BEGIN()       \
+  bool ptYielded = true; \
+  switch (_ptLine) {     \
+    case 0:
 
 // Stop protothread and end it (use at end of Run() implementation).
-#define PT_END()                                                               \
-  default:;                                                                    \
-    }                                                                          \
-    stop();                                                                    \
+#define PT_END() \
+  default:;      \
+    }            \
+    stop();      \
     return;
 
 // Cause protothread to wait until given condition is true.
-#define PT_WAIT_UNTIL(condition)                                               \
-  do {                                                                         \
-    _ptLine = __LINE__;                                                        \
-  case __LINE__:                                                               \
-    if (!(condition))                                                          \
-      return true;                                                             \
+#define PT_WAIT_UNTIL(condition)     \
+  do {                               \
+    _ptLine = __LINE__;              \
+    case __LINE__:                   \
+      if (!(condition)) return true; \
   } while (0)
 
 // Cause protothread to wait while given condition is true.
@@ -102,55 +101,61 @@ public:
 #define PT_WAIT_THREAD(child) PT_WAIT_WHILE((child).dispatch(msg))
 
 // Restart and spawn given child protothread and wait until it completes.
-#define PT_SPAWN(child)                                                        \
-  do {                                                                         \
-    (child).restart();                                                         \
-    PT_WAIT_THREAD(child);                                                     \
+#define PT_SPAWN(child)    \
+  do {                     \
+    (child).restart();     \
+    PT_WAIT_THREAD(child); \
   } while (0)
 
 // Restart protothread's execution at its PT_BEGIN.
-#define PT_RESTART()                                                           \
-  do {                                                                         \
-    restart();                                                                 \
-    return true;                                                               \
+#define PT_RESTART() \
+  do {               \
+    restart();       \
+    return true;     \
   } while (0)
 
 // Stop and exit from protothread.
-#define PT_EXIT()                                                              \
-  do {                                                                         \
-    stop();                                                                    \
-    return false;                                                              \
+#define PT_EXIT() \
+  do {            \
+    stop();       \
+    return false; \
   } while (0)
 
 // Yield protothread till next call to its Run().
-#define PT_YIELD()                                                             \
-  do {                                                                         \
-    ptYielded = false;                                                         \
-    _ptLine = __LINE__;                                                        \
-  case __LINE__:                                                               \
-    if (!ptYielded)                                                            \
-      return true;                                                             \
+#define PT_YIELD()                 \
+  do {                             \
+    ptYielded = false;             \
+    _ptLine = __LINE__;            \
+    case __LINE__:                 \
+      if (!ptYielded) return true; \
   } while (0)
 
 // Yield protothread until given condition is true.
-#define PT_YIELD_UNTIL(condition)                                              \
-  do {                                                                         \
-    ptYielded = false;                                                         \
-    _ptLine = __LINE__;                                                        \
-  case __LINE__:                                                               \
-    if (!ptYielded || !(condition))                                            \
-      return;                                                                  \
+#define PT_YIELD_UNTIL(condition)             \
+  do {                                        \
+    ptYielded = false;                        \
+    _ptLine = __LINE__;                       \
+    case __LINE__:                            \
+      if (!ptYielded || !(condition)) return; \
   } while (0)
 //_______________________________________________________________________________________________________________
 //
 //_______________________________________________________________________________________________________________
 //
 
-class MqttSerial : public ProtoThread ,  Flow {
-public:
-  typedef void (*MqttCallback)(String topic, String message);
+typedef struct MqttMessage {
+  String topic;
+  String message;
+  int qos;
+  bool retain;
+} MqttMessage;
 
-private:
+class MqttSerial : public ProtoThread {
+ public:
+  typedef void (*MqttCallback)(String topic, String message);
+  AbstractSource<MqttMessage> published;
+
+ private:
   StaticJsonDocument<256> txd;
   StaticJsonDocument<256> rxd;
   String rxdString;
@@ -165,11 +170,11 @@ private:
   enum { CMD_SUBSCRIBE = 0, CMD_PUBLISH };
   MqttCallback _callback;
 
-public:
+ public:
+  AbstractSource<Signal> signalOut;
   MqttSerial(Stream &stream);
   void setup();
   void loop();
-  void recv(Event ev);
   void onMqttPublish(MqttCallback callback);
   void rxdSerial(String s);
   void publish(String topic, String message);

@@ -12,7 +12,7 @@
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
-public:
+ public:
   LedBlinker(uint32_t pin, uint32_t delay) {
     _pin = pin;
     _delay = delay;
@@ -45,11 +45,9 @@ public:
 class Publisher : public ProtoThread {
   String _systemPrefix;
   MqttSerial &_mqtt;
-  LedBlinker &_ledBlinker;
 
-public:
-  Publisher(MqttSerial &mqtt, LedBlinker &ledBlinker)
-      : _mqtt(mqtt), _ledBlinker(ledBlinker){};
+ public:
+  Publisher(MqttSerial &mqtt) : _mqtt(mqtt){};
   void setup() {
     LOG("Publisher started");
     _systemPrefix = "src/" + Sys::hostname + "/system/";
@@ -62,10 +60,8 @@ public:
         _mqtt.publish(_systemPrefix + "build", Sys::build);
         _mqtt.publish(_systemPrefix + "cpu", Sys::cpu);
         _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
-        _ledBlinker.delay(1000);
       } else
-        _ledBlinker.delay(100);
-      timeout(1000);
+        timeout(1000);
       PT_YIELD_UNTIL(timeout());
     }
     PT_END();
@@ -77,19 +73,24 @@ public:
 
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
-Publisher publisher(mqtt, ledBlinkerBlue);
+Publisher publisher(mqtt);
 
-void mqttCallback(String topic, String message) {
-  Serial.println(" RXD " + topic + "=" + message);
-}
-extern void tester();
 void setup() {
-  tester();
   Serial.begin(115200);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
-  Sys::hostname = "stellaris";
+  Sys::hostname = "streams";
   Sys::cpu = "lm4f120h5qr";
-  mqtt.onMqttPublish(mqttCallback);
+  //  mqtt.onMqttPublish(mqttCallback);
+  mqtt.signalOut >> [](Signal s) {
+    if (s == CONNECTED)
+      ledBlinkerBlue.delay(500);
+    else if (s == DISCONNECTED)
+      ledBlinkerBlue.delay(100);
+  };
+
+  mqtt.published >> [](MqttMessage m) {
+    Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
+  };
   ProtoThread::setupAll();
 }
 

@@ -22,8 +22,7 @@ void Timer::start() {
 void Timer::stop() { _actif = false; }
 
 bool Timer::timeout() {
-  if (_actif)
-    return millis() > _timeout;
+  if (_actif) return millis() > _timeout;
   return false;
 }
 
@@ -96,7 +95,8 @@ bool ProtoThread::hasBits(uint32_t bits) { return (_bits & bits); }
 //
 
 MqttSerial::MqttSerial(Stream &stream)
-    : _stream(stream), _loopbackTimer(1000, true, true),
+    : _stream(stream),
+      _loopbackTimer(1000, true, true),
       _connectTimer(3000, true, true) {}
 void MqttSerial::setup() {
   //  LOG(__FUNCTION__);
@@ -109,22 +109,23 @@ void MqttSerial::setup() {
 }
 
 void MqttSerial::loop() {
-  Event event;
   PT_BEGIN();
   timeout(1000);
   while (true) {
     PT_YIELD_UNTIL(_stream.available() || timeout() ||
-                   _loopbackTimer.timeout() || getNext(event) );
+                   _loopbackTimer.timeout());
     if (_stream.available()) {
       rxdSerial(_stream.readString());
     };
     if (_connectTimer.timeout()) {
       if (millis() > (_loopbackReceived + 2000)) {
         _connected = false;
+        signalOut.emit(DISCONNECTED);
         subscribe("dst/" + Sys::hostname + "/#");
         publish(_loopbackTopic, "true");
       } else {
         _connected = true;
+        signalOut.emit(CONNECTED);
       }
       _connectTimer.start();
     }
@@ -134,10 +135,6 @@ void MqttSerial::loop() {
     }
   }
   PT_END();
-}
-
-void MqttSerial::recv(Event evt){
-  
 }
 
 void MqttSerial::onMqttPublish(MqttCallback callback) { _callback = callback; }
@@ -152,14 +149,17 @@ void MqttSerial::rxdSerial(String s) {
         if (!array.isNull()) {
           if (array[1].as<String>() == _loopbackTopic) {
             _loopbackReceived = millis();
-          } else
-            _callback(array[1].as<String>(), array[2].as<String>());
+            published.emit({array[1], array[2], 0, false});
+          } else {
+            published.emit({array[1], array[2], 0, false});
+            //            _callback(array[1].as<String>(),
+            //            array[2].as<String>());
+          }
         }
         rxdString = "";
       }
     } else {
-      if (rxdString.length() < 256)
-        rxdString += c;
+      if (rxdString.length() < 256) rxdString += c;
     }
   }
 }
@@ -192,9 +192,9 @@ bool MqttSerial::isConnected() { return _connected; }
 #ifdef __arm__
 // should use uinstd.h to define sbrk but Due causes a conflict
 extern "C" char *sbrk(int incr);
-#else  // __ARM__
+#else   // __ARM__
 extern char *__brkval;
-#endif // __arm__
+#endif  // __arm__
 
 int freeMemory() {
   char top;
@@ -202,7 +202,7 @@ int freeMemory() {
   return &top - reinterpret_cast<char *>(sbrk(0));
 #elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
   return &top - __brkval;
-#else  // __arm__
+#else   // __arm__
   return __brkval ? &top - __brkval : &top - __malloc_heap_start;
-#endif // __arm__
+#endif  // __arm__
 }
