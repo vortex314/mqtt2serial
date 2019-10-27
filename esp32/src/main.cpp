@@ -5,8 +5,6 @@
 //_______________________________________________________________________________________________________________
 //
 
-//_______________________________________________________________________________________________________________
-//
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
@@ -40,14 +38,11 @@ public:
 // LedBlinker ledBlinkerGreen(LED_GREEN_PIN,300);
 //_______________________________________________________________________________________________________________
 //
-class Publisher : public ProtoThread {
+class Publisher : public ProtoThread, public AbstractSource<MqttMessage> {
   String _systemPrefix;
-  MqttSerial &_mqtt;
-  LedBlinker &_ledBlinker;
-
+ 
 public:
-  Publisher(MqttSerial &mqtt, LedBlinker &ledBlinker)
-      : _mqtt(mqtt), _ledBlinker(ledBlinker){};
+  Publisher(){};
   void setup() {
     LOG("Publisher started");
     _systemPrefix = "src/" + Sys::hostname + "/system/";
@@ -55,15 +50,11 @@ public:
   void loop() {
     PT_BEGIN();
     while (true) {
-      if (_mqtt.isConnected()) {
-        _mqtt.publish(_systemPrefix + "upTime", String(millis()));
-        _mqtt.publish(_systemPrefix + "build", Sys::build);
-        _mqtt.publish(_systemPrefix + "cpu", Sys::cpu);
-  //      _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
-        _ledBlinker.delay(1000);
-      } else
-        _ledBlinker.delay(100);
-      timeout(1000);
+        emit({_systemPrefix + "upTime", String(millis()), 1, false});
+        emit({_systemPrefix + "build", Sys::build, 1, false});
+        emit({_systemPrefix + "cpu", Sys::cpu, 1, false});
+        emit({_systemPrefix + "heap", String(ESP.getFreeHeap()), 1, false});
+        timeout(1000);
       PT_YIELD_UNTIL(timeout());
     }
     PT_END();
@@ -75,19 +66,28 @@ public:
 #define PIN_LED 2
 
 MqttSerial mqtt(Serial);
-LedBlinker ledBlinker(PIN_LED, 100);
-Publisher publisher(mqtt, ledBlinker);
-
-void mqttCallback(String topic, String message) {
-  Serial.println(" RXD " + topic + "=" + message);
-}
+LedBlinker ledBlinkerBlue(PIN_LED, 100);
+Publisher publisher;
 
 void setup() {
   Serial.begin(115200);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
   Sys::hostname = "esp32";
   Sys::cpu = "esp32";
-  mqtt.onMqttPublish(mqttCallback);
+
+  mqtt.signalOut >> [](Signal s) {
+    if (s == CONNECTED)
+      ledBlinkerBlue.delay(500);
+    else if (s == DISCONNECTED)
+      ledBlinkerBlue.delay(100);
+  };
+
+  mqtt >> [](MqttMessage m) {
+    Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
+  };
+
+  publisher >> mqtt;
+
   ProtoThread::setupAll();
 }
 

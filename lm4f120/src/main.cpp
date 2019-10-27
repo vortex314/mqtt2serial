@@ -4,7 +4,23 @@
 
 //_______________________________________________________________________________________________________________
 //
+#ifdef __arm__
+// should use uinstd.h to define sbrk but Due causes a conflict
+extern "C" char *sbrk(int incr);
+#else  // __ARM__
+extern char *__brkval;
+#endif // __arm__
 
+int freeMemory() {
+  char top;
+#ifdef __arm__
+  return &top - reinterpret_cast<char *>(sbrk(0));
+#elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
+  return &top - __brkval;
+#else  // __arm__
+  return __brkval ? &top - __brkval : &top - __malloc_heap_start;
+#endif // __arm__
+}
 //_______________________________________________________________________________________________________________
 //
 #define PIN_LED PF_1
@@ -77,7 +93,7 @@ void setup() {
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
   Sys::hostname = "stream2";
   Sys::cpu = "lm4f120h5qr";
-  //  mqtt.onMqttPublish(mqttCallback);
+
   mqtt.signalOut >> [](Signal s) {
     if (s == CONNECTED)
       ledBlinkerBlue.delay(500);
