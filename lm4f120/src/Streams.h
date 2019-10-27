@@ -63,8 +63,8 @@ class Sink : public AbstractSink<T> {
  public:
   Sink(){};
   Sink(std::function<void(T)> handler) : _handler(handler){};
-  void handler(std::function<void(T)> handler) { _handler = handler; }
-  void recv(T event) { _handler(event); }
+  void handler(std::function<void(T)> handler) { _handler = handler; };
+  void recv(T event) { _handler(event); };
 };
 //______________________________________________________________________________
 //

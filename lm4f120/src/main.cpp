@@ -12,7 +12,7 @@
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
- public:
+public:
   LedBlinker(uint32_t pin, uint32_t delay) {
     _pin = pin;
     _delay = delay;
@@ -42,12 +42,11 @@ class LedBlinker : public ProtoThread {
 // LedBlinker ledBlinkerGreen(LED_GREEN_PIN,300);
 //_______________________________________________________________________________________________________________
 //
-class Publisher : public ProtoThread {
+class Publisher : public ProtoThread, public AbstractSource<MqttMessage> {
   String _systemPrefix;
-  MqttSerial &_mqtt;
-
- public:
-  Publisher(MqttSerial &mqtt) : _mqtt(mqtt){};
+ 
+public:
+  Publisher(){};
   void setup() {
     LOG("Publisher started");
     _systemPrefix = "src/" + Sys::hostname + "/system/";
@@ -55,12 +54,10 @@ class Publisher : public ProtoThread {
   void loop() {
     PT_BEGIN();
     while (true) {
-      if (_mqtt.isConnected()) {
-        _mqtt.publish(_systemPrefix + "upTime", String(millis()));
-        _mqtt.publish(_systemPrefix + "build", Sys::build);
-        _mqtt.publish(_systemPrefix + "cpu", Sys::cpu);
-        _mqtt.publish(_systemPrefix + "heap", String(freeMemory()));
-      } else
+        emit({_systemPrefix + "upTime", String(millis()), 1, false});
+        emit({_systemPrefix + "build", Sys::build, 1, false});
+        emit({_systemPrefix + "cpu", Sys::cpu, 1, false});
+        emit({_systemPrefix + "heap", String(freeMemory()), 1, false});
         timeout(1000);
       PT_YIELD_UNTIL(timeout());
     }
@@ -73,12 +70,12 @@ class Publisher : public ProtoThread {
 
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
-Publisher publisher(mqtt);
+Publisher publisher;
 
 void setup() {
   Serial.begin(115200);
   LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
-  Sys::hostname = "streams";
+  Sys::hostname = "stream2";
   Sys::cpu = "lm4f120h5qr";
   //  mqtt.onMqttPublish(mqttCallback);
   mqtt.signalOut >> [](Signal s) {
@@ -88,9 +85,12 @@ void setup() {
       ledBlinkerBlue.delay(100);
   };
 
-  mqtt.published >> [](MqttMessage m) {
+  mqtt >> [](MqttMessage m) {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
   };
+
+  publisher >> mqtt;
+
   ProtoThread::setupAll();
 }
 

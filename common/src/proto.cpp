@@ -22,7 +22,8 @@ void Timer::start() {
 void Timer::stop() { _actif = false; }
 
 bool Timer::timeout() {
-  if (_actif) return millis() > _timeout;
+  if (_actif)
+    return millis() > _timeout;
   return false;
 }
 
@@ -95,9 +96,16 @@ bool ProtoThread::hasBits(uint32_t bits) { return (_bits & bits); }
 //
 
 MqttSerial::MqttSerial(Stream &stream)
-    : _stream(stream),
-      _loopbackTimer(1000, true, true),
-      _connectTimer(3000, true, true) {}
+    : AbstractSink<MqttMessage>(), _stream(stream),
+      _loopbackTimer(1000, true, true), _connectTimer(3000, true, true) {}
+
+MqttSerial::~MqttSerial() {}
+
+void MqttSerial::recv(MqttMessage m) {
+  if (_connected)
+    publish(m.topic, m.message);
+}
+
 void MqttSerial::setup() {
   //  LOG(__FUNCTION__);
   txd.clear();
@@ -137,8 +145,6 @@ void MqttSerial::loop() {
   PT_END();
 }
 
-void MqttSerial::onMqttPublish(MqttCallback callback) { _callback = callback; }
-
 void MqttSerial::rxdSerial(String s) {
   for (uint32_t i = 0; i < s.length(); i++) {
     char c = s.charAt(i);
@@ -159,7 +165,8 @@ void MqttSerial::rxdSerial(String s) {
         rxdString = "";
       }
     } else {
-      if (rxdString.length() < 256) rxdString += c;
+      if (rxdString.length() < 256)
+        rxdString += c;
     }
   }
 }
@@ -192,9 +199,9 @@ bool MqttSerial::isConnected() { return _connected; }
 #ifdef __arm__
 // should use uinstd.h to define sbrk but Due causes a conflict
 extern "C" char *sbrk(int incr);
-#else   // __ARM__
+#else  // __ARM__
 extern char *__brkval;
-#endif  // __arm__
+#endif // __arm__
 
 int freeMemory() {
   char top;
@@ -202,7 +209,7 @@ int freeMemory() {
   return &top - reinterpret_cast<char *>(sbrk(0));
 #elif defined(CORE_TEENSY) || (ARDUINO > 103 && ARDUINO != 151)
   return &top - __brkval;
-#else   // __arm__
+#else  // __arm__
   return __brkval ? &top - __brkval : &top - __malloc_heap_start;
-#endif  // __arm__
+#endif // __arm__
 }
