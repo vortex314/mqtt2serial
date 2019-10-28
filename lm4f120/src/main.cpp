@@ -58,7 +58,7 @@ public:
 // LedBlinker ledBlinkerGreen(LED_GREEN_PIN,300);
 //_______________________________________________________________________________________________________________
 //
-class Publisher : public ProtoThread, public AbstractSource<MqttMessage> {
+class Publisher : public ProtoThread, public Source<MqttMessage> {
   String _systemPrefix;
  
 public:
@@ -80,32 +80,42 @@ public:
     PT_END();
   }
 };
-//
-template <class T>
-class Async : public AbstractSink<T>,public ProtoThread {
-  CircularBuffer<T> _buffer;
-  AbstractSink<T>& _sink;
- public:
-  Async(uint32_t size,AbstractSink<T>& sink) : _buffer(size),_sink(sink) {}
-  void recv(T event) { _buffer.push(event); };
-  void setup(){};
-  void loop(){
-    PT_BEGIN();
-    while(true){
-    PT_YIELD_UNTIL(!_buffer.empty());
-      T event;
-      _buffer.pop(event);
-      _sink.recv(event);
-    }
-    PT_END();
-  }
+
+class Tacho : public ProtoThread,public Source<double>{
+  public:
+    Tacho(uint32_t pwmIdx){};
+    void setup(){};
+    void loop(){};
+
 };
+
+template <class T> 
+class ToMqtt : public Flow<T,MqttMessage> {
+  String _name;
+  public :
+    ToMqtt(String name):_name(name){};
+    void emit(MqttMessage m){
+      
+    }
+    void recv(T event) {
+      String s="";
+      DynamicJsonDocument doc(100);
+      JsonVariant variant = doc.to<JsonVariant>();
+      variant.set(event);
+      serializeJson(doc, s);
+      MqttMessage m;
+      emit(m);
+      emit({_name,s,0,false});
+    }
+};
+
 //_____________________________________ protothreads running _____
 //
 
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
 Publisher publisher;
+Tacho tacho(0);
 
 void setup() {
   Serial.begin(115200);
@@ -120,13 +130,15 @@ void setup() {
       ledBlinkerBlue.delay(100);
   };
 
-  Async<MqttMessage> async(5,mqtt);
 
   mqtt >> [](MqttMessage m) {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
   };
 
-  publisher >> mqtt;
+  publisher >> mqtt; 
+
+  ToMqtt<double> toMqtt("tacho/rpm");
+  tacho >> toMqtt >> mqtt;
 
   ProtoThread::setupAll();
 }

@@ -150,10 +150,9 @@ typedef struct MqttMessage {
   bool retain;
 } MqttMessage;
 
-class MqttSerial : public ProtoThread,public AbstractSink<MqttMessage>,public AbstractSource<MqttMessage> {
+class MqttSerial : public ProtoThread,public BufferedSink<MqttMessage>,public Source<MqttMessage> {
  public:
   typedef void (*MqttCallback)(String topic, String message);
-  AbstractSource<MqttMessage> published;
 
  private:
   StaticJsonDocument<256> txd;
@@ -170,8 +169,7 @@ class MqttSerial : public ProtoThread,public AbstractSink<MqttMessage>,public Ab
   enum { CMD_SUBSCRIBE = 0, CMD_PUBLISH };
 
  public:
-  AbstractSource<Signal> signalOut;
-  void recv(MqttMessage);
+  Source<Signal> signalOut;
   MqttSerial(Stream &stream);
   ~MqttSerial();
   void setup();

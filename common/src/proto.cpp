@@ -96,15 +96,10 @@ bool ProtoThread::hasBits(uint32_t bits) { return (_bits & bits); }
 //
 
 MqttSerial::MqttSerial(Stream &stream)
-    : AbstractSink<MqttMessage>(), _stream(stream),
+    : BufferedSink<MqttMessage>(5), _stream(stream),
       _loopbackTimer(1000, true, true), _connectTimer(3000, true, true) {}
 
 MqttSerial::~MqttSerial() {}
-
-void MqttSerial::recv(MqttMessage m) {
-  if (_connected)
-    publish(m.topic, m.message);
-}
 
 void MqttSerial::setup() {
   //  LOG(__FUNCTION__);
@@ -121,7 +116,7 @@ void MqttSerial::loop() {
   timeout(1000);
   while (true) {
     PT_YIELD_UNTIL(_stream.available() || timeout() ||
-                   _loopbackTimer.timeout());
+                   _loopbackTimer.timeout() || hasNext());
     if (_stream.available()) {
       rxdSerial(_stream.readString());
     };
@@ -141,6 +136,11 @@ void MqttSerial::loop() {
       publish(_loopbackTopic, "true");
       _loopbackTimer.start();
     }
+    if ( hasNext() ) {
+      MqttMessage m;
+      m = getNext();
+      if ( _connected )  publish(m.topic,m.message);
+    }
   }
   PT_END();
 }
@@ -155,11 +155,9 @@ void MqttSerial::rxdSerial(String s) {
         if (!array.isNull()) {
           if (array[1].as<String>() == _loopbackTopic) {
             _loopbackReceived = millis();
-            published.emit({array[1], array[2], 0, false});
+            emit({array[1], array[2], 0, false});
           } else {
-            published.emit({array[1], array[2], 0, false});
-            //            _callback(array[1].as<String>(),
-            //            array[2].as<String>());
+            emit({array[1], array[2], 0, false});
           }
         }
         rxdString = "";
