@@ -152,7 +152,6 @@ typedef struct MqttMessage {
 
 class MqttSerial : public ProtoThread,public BufferedSink<MqttMessage>,public Source<MqttMessage> {
  public:
-  typedef void (*MqttCallback)(String topic, String message);
 
  private:
   StaticJsonDocument<256> txd;

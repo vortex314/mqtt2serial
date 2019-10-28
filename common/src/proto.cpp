@@ -102,7 +102,7 @@ MqttSerial::MqttSerial(Stream &stream)
 MqttSerial::~MqttSerial() {}
 
 void MqttSerial::setup() {
-  //  LOG(__FUNCTION__);
+  LOG("MqttSerial started.");
   txd.clear();
   rxd.clear();
   _loopbackTopic = "dst/" + Sys::hostname + "/system/loopback";
@@ -136,10 +136,11 @@ void MqttSerial::loop() {
       publish(_loopbackTopic, "true");
       _loopbackTimer.start();
     }
-    if ( hasNext() ) {
+    if (hasNext()) {
       MqttMessage m;
       m = getNext();
-      if ( _connected )  publish(m.topic,m.message);
+      if (_connected)
+        publish("src/" + Sys::hostname + "/" + m.topic, m.message);
     }
   }
   PT_END();

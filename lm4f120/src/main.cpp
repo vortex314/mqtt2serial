@@ -59,54 +59,64 @@ public:
 //_______________________________________________________________________________________________________________
 //
 class Publisher : public ProtoThread, public Source<MqttMessage> {
-  String _systemPrefix;
- 
+
 public:
   Publisher(){};
-  void setup() {
-    LOG("Publisher started");
-    _systemPrefix = "src/" + Sys::hostname + "/system/";
-  }
+  void setup() { LOG("Publisher started"); }
   void loop() {
     PT_BEGIN();
     while (true) {
-        emit({_systemPrefix + "upTime", String(millis()), 1, false});
-        emit({_systemPrefix + "build", Sys::build, 1, false});
-        emit({_systemPrefix + "cpu", Sys::cpu, 1, false});
-        emit({_systemPrefix + "heap", String(freeMemory()), 1, false});
-        timeout(1000);
+      emit({"system/upTime", String(millis()), 1, false});
+      emit({"system/build", "\""+Sys::build+"\"", 1, false});
+      emit({"system/cpu", "\""+Sys::cpu+"\"", 1, false});
+      emit({"system/heap", String(freeMemory()), 1, false});
+      timeout(3000);
       PT_YIELD_UNTIL(timeout());
     }
     PT_END();
   }
 };
 
-class Tacho : public ProtoThread,public Source<double>{
-  public:
-    Tacho(uint32_t pwmIdx){};
-    void setup(){};
-    void loop(){};
-
+class Tacho : public ProtoThread, public Source<double> {
+public:
+  Tacho(uint32_t pwmIdx){};
+  void setup() { LOG("Tacho started"); };
+  void loop() {
+    PT_BEGIN();
+    while (true) {
+      emit(3.14);
+      timeout(1000);
+      PT_YIELD_UNTIL(timeout());
+    }
+    PT_END();
+  };
 };
 
-template <class T> 
-class ToMqtt : public Flow<T,MqttMessage> {
+class Pwm: public ProtoThread,public Source<MqttMessage>,public Sink<MqttMessage>{
+  public:
+    Sink<double> rpmMeasured;
+    void setup(){};
+    void loop(){};
+    void recv(MqttMessage){};
+};
+
+template <class T> class ToMqtt : public Flow<T, MqttMessage> {
   String _name;
-  public :
-    ToMqtt(String name):_name(name){};
-    void emit(MqttMessage m){
-      
-    }
-    void recv(T event) {
-      String s="";
-      DynamicJsonDocument doc(100);
-      JsonVariant variant = doc.to<JsonVariant>();
-      variant.set(event);
-      serializeJson(doc, s);
-      MqttMessage m;
-      emit(m);
-      emit({_name,s,0,false});
-    }
+
+public:
+  ToMqtt(String name) : _name(name){};
+  void recv(T event) {
+    String s = "";
+    DynamicJsonDocument doc(100);
+    JsonVariant variant = doc.to<JsonVariant>();
+    variant.set(event);
+    serializeJson(doc, s);
+    this->emit({_name, s, 0, false}); 
+    // emit doesn't work  https://stackoverflow.com/questions/9941987/there-are-no-arguments-that-depend-on-a-template-parameter
+  }
+  static Flow<T,MqttMessage>& create(String s){
+    return *(new ToMqtt<T>(s));
+  }
 };
 
 //_____________________________________ protothreads running _____
@@ -116,10 +126,13 @@ MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
 Publisher publisher;
 Tacho tacho(0);
+ToMqtt<double> doubleToMqtt("tacho/rpm");
+Pwm pwm;
 
 void setup() {
   Serial.begin(115200);
-  LOG("===== Starting ProtoThreads  build " __DATE__ " " __TIME__);
+  Serial.println("\r\n===== Starting ProtoThreads  build " __DATE__
+                 " " __TIME__);
   Sys::hostname = "stream2";
   Sys::cpu = "lm4f120h5qr";
 
@@ -129,17 +142,13 @@ void setup() {
     else if (s == DISCONNECTED)
       ledBlinkerBlue.delay(100);
   };
-
-
   mqtt >> [](MqttMessage m) {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
   };
 
-  publisher >> mqtt; 
-
-  ToMqtt<double> toMqtt("tacho/rpm");
-  tacho >> toMqtt >> mqtt;
-
+  publisher >> mqtt;
+  tacho >> ToMqtt<double>::create("tacho/rpm") >> mqtt;
+ // tacho >> pwm.rpmMeasured;
   ProtoThread::setupAll();
 }
 

@@ -1,24 +1,22 @@
 #include <Arduino.h>
-
-#include <stdint.h>
+#include <deque>
 #include <functional>
+#include <stdint.h>
 #include <string>
 #include <vector>
-#include <deque>
+
 //______________________________________________________________________________
 //
-template <class T>
-class AbstractSink {
- public:
+template <class T> class AbstractSink {
+public:
   virtual void recv(T) = 0;
 };
 //______________________________________________________________________________
 //
-template <class T>
-class Sink : public AbstractSink<T> {
+template <class T> class Sink : public AbstractSink<T> {
   std::function<void(T)> _handler;
 
- public:
+public:
   Sink(){};
   Sink(std::function<void(T)> handler) : _handler(handler){};
   void handler(std::function<void(T)> handler) { _handler = handler; };
@@ -27,25 +25,17 @@ class Sink : public AbstractSink<T> {
 //______________________________________________________________________________
 //
 
-template <typename T> 
-class AbstractSource {
+template <typename T> class AbstractSource {
 public:
-virtual void emit(T event)=0;
+  virtual void emit(T event) = 0;
 };
-/*
-template <class I,class O> 
-class AbstractFlow : public Sink<I>,public AbstractSource<O> {
-} ;*/
 
-template <class T>
-class Source : public AbstractSource<T> {
+template <class T> class Source : public AbstractSource<T> {
   std::vector<AbstractSink<T> *> _sinks;
 
- public:
+public:
   Source(){};
-  void addSink(AbstractSink<T> *_sink) {
-    _sinks.push_back(_sink);
-  }
+  void addSink(AbstractSink<T> *_sink) { _sinks.push_back(_sink); }
   void operator>>(std::function<void(T)> handler) {
     addSink(new Sink<T>(handler));
   };
@@ -55,45 +45,53 @@ class Source : public AbstractSource<T> {
       sink->recv(event);
     }
   };
- // template <class X>
-//  Source<X> operator>>(AbstractFlow<T,X> & flow ) { addSink(&flow); return flow;}
 };
-
-template <class I,class O> 
-class Flow : public Sink<I>,public Source<O> {
-
-};
-
+//______________________________________________________________________________
+//
 template <class IN, class OUT>
-Source<OUT>&  operator>>(Source<IN> &source,Flow<IN,OUT> &flow){
-source.addSink(&flow);
-return flow;
+class Flow : public AbstractSink<IN>, public Source<OUT> {};
+//______________________________________________________________________________
+//
+template <class IN, class OUT>
+Source<OUT> &operator>>(Source<IN> &source, Flow<IN, OUT> &flow) {
+  source.addSink(&flow);
+  return flow;
 };
 /*
-template <class T>
-void operator>>(Source<T> &source,Sink<T> &sink){
-source.addSink(&sink);
+template <class IN, class OUT>
+void operator>>(Flow<IN, OUT> &flow, Sink<OUT> &sink) {
+  flow.addSink(&sink);
 };*/
-/*
-template <class T>
-  void operator>>(Source<T>&  source,std::function<void(T)> handler) {
-    source.addSink(new Sink<T>(handler));
-  };*/
 
-template <class T>
-class BufferedSink : public Sink<T> {
+//______________________________________________________________________________
+//
+template <class T> class BufferedSink : public Sink<T> {
   std::deque<T> _buffer;
+  uint32_t _queueDepth;
 
- public:
-  BufferedSink(uint32_t size) : _buffer(size) {}
-  void recv(T event) { _buffer.push_back(event); };
-  T getNext() { 
-     return _buffer.front();
+public:
+  BufferedSink(uint32_t size) : _queueDepth(size) {}
+  void recv(T event) {
+    if (_buffer.size() <= _queueDepth)
+      _buffer.push_back(event);
+    else
+      Serial.println(__FILE__ ":" + String(__LINE__) + " | buffer full");
+  };
+  T getNext() {
+    T t = _buffer.front();
+    _buffer.pop_front();
+    return t;
   }
-  bool hasNext() { return !_buffer.empty();}
+  bool hasNext() { return !_buffer.empty(); }
 };
 //______________________________________________________________________________
 //
-//______________________________________________________________________________
-//
-typedef enum { CONNECTED, DISCONNECTED , OPEN,CLOSE,RXD,TXD,IO_ERROR} Signal;
+typedef enum {
+  CONNECTED,
+  DISCONNECTED,
+  OPEN,
+  CLOSE,
+  RXD,
+  TXD,
+  IO_ERROR
+} Signal;
