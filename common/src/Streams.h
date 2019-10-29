@@ -55,6 +55,12 @@ Source<OUT> &operator>>(Source<IN> &source, Flow<IN, OUT> &flow) {
   source.addSink(&flow);
   return flow;
 };
+
+template <class IN, class OUT>
+Source<OUT> &operator>>(Source<IN> &source, Flow<IN, OUT> *flow) {
+  source.addSink(flow);
+  return *flow;
+};
 //______________________________________________________________________________
 //
 template <class T> class BufferedSink : public AbstractSink<T> {

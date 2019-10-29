@@ -156,9 +156,9 @@ void MqttSerial::rxdSerial(String s) {
         if (!array.isNull()) {
           if (array[1].as<String>() == _loopbackTopic) {
             _loopbackReceived = millis();
-            emit({array[1], array[2], 0, false});
+            emit({array[1], array[2]});
           } else {
-            emit({array[1], array[2], 0, false});
+            emit({array[1], array[2]});
           }
         }
         rxdString = "";

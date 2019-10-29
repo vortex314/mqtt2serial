@@ -146,8 +146,6 @@ class ProtoThread {
 typedef struct MqttMessage {
   String topic;
   String message;
-  int qos;
-  bool retain;
 } MqttMessage;
 
 class MqttSerial : public ProtoThread,public BufferedSink<MqttMessage>,public Source<MqttMessage> {
@@ -164,7 +162,6 @@ class MqttSerial : public ProtoThread,public BufferedSink<MqttMessage>,public So
   Timer _connectTimer;
   uint64_t _loopbackReceived;
 
-  typedef enum { CMD = 0, TOPIC, MESSAGE, QOS, RETAIN, CRC_IDX } Idx;
   enum { CMD_SUBSCRIBE = 0, CMD_PUBLISH };
 
  public:

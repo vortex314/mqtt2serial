@@ -69,10 +69,10 @@ public:
   void loop() {
     PT_BEGIN();
     while (true) {
-      emit({"system/upTime", String(millis()), 1, false});
-      emit({"system/build", "\"" + Sys::build + "\"", 1, false});
-      emit({"system/cpu", "\"" + Sys::cpu + "\"", 1, false});
-      emit({"system/heap", String(freeMemory()), 1, false});
+      emit({"system/upTime", String(millis())});
+      emit({"system/build", "\"" + Sys::build + "\""});
+      emit({"system/cpu", "\"" + Sys::cpu + "\""});
+      emit({"system/heap", String(freeMemory())});
       timeout(3000);
       PT_YIELD_UNTIL(timeout());
     }
@@ -102,17 +102,22 @@ class Pwm : public ProtoThread,
             public AbstractSink<MqttMessage> {
 public:
   HandlerSink<double> rpmMeasured;
+
   void setup() {
     rpmMeasured.handler([=](double rpm) {});
   };
   void loop(){};
   void recv(MqttMessage){};
 };
-
-class MedianFilter : public Flow<double, double> {
+#include <MedianFilter.h>
+template <class T>
+class MedianFilterFlow : public Flow<T, T>,public MedianFilter<T,10> {
 public:
-  MedianFilter(uint32_t samples){};
-  void recv(double d) { emit(d); };
+  MedianFilterFlow(uint32_t samples){};
+  void recv(double d) { 
+    this->addSample(d);
+    if ( this->isReady()) this->emit(d); 
+    };
 };
 //_______________________________________________________________________________________________________________
 //
@@ -127,21 +132,19 @@ public:
     JsonVariant variant = doc.to<JsonVariant>();
     variant.set(event);
     serializeJson(doc, s);
-    this->emit({_name, s, 0, false});
-    // emit doesn't work
+    this->emit({_name, s});
+    // emit doesn't work as such
     // https://stackoverflow.com/questions/9941987/there-are-no-arguments-that-depend-on-a-template-parameter
   }
-  static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
+//  static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
 };
 //__________________________________________
-//
+
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
 Publisher publisher;
 Tacho tacho(0);
-ToMqtt<double> doubleToMqtt("tacho/rpm");
 Pwm pwm;
-MedianFilter rpmFilter(10);
 
 void setup() {
   Serial.begin(115200);
@@ -155,8 +158,11 @@ void setup() {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
   };
   publisher >> mqtt;
-  tacho >> ToMqtt<double>::create("tacho/rpm") >> mqtt;
-  tacho >> *(new MedianFilter(10)) >> pwm.rpmMeasured;
+  mqtt.connected >> new ToMqtt<bool>("mqtt/connected") >> mqtt;
+
+  Source<double>& tachoFiltered = tacho >> new MedianFilterFlow<double>(10);
+  tachoFiltered >>  pwm.rpmMeasured;
+  tachoFiltered >> new ToMqtt<double>("tacho/rpm") >> mqtt;
 
   ProtoThread::setupAll();
 }
