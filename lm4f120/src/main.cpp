@@ -160,7 +160,7 @@ void setup() {
 
   publisher >> mqtt;
   tacho >> ToMqtt<double>::create("tacho/rpm") >> mqtt;
-  tacho >> rpmFilter>> pwm.rpmMeasured;
+  tacho >> *(new MedianFilter(10)) >> pwm.rpmMeasured;
   ProtoThread::setupAll();
 }
 
