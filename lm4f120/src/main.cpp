@@ -61,10 +61,6 @@ public:
 };
 //_______________________________________________________________________________________________________________
 //
-// LedBlinker ledBlinkerRed(LED_RED_PIN,100);
-// LedBlinker ledBlinkerGreen(LED_GREEN_PIN,300);
-//_______________________________________________________________________________________________________________
-//
 class Publisher : public ProtoThread, public Source<MqttMessage> {
 
 public:
@@ -83,7 +79,8 @@ public:
     PT_END();
   }
 };
-
+//_______________________________________________________________________________________________________________
+//
 class Tacho : public ProtoThread, public Source<double> {
 public:
   Tacho(uint32_t pwmIdx){};
@@ -98,7 +95,8 @@ public:
     PT_END();
   };
 };
-
+//_______________________________________________________________________________________________________________
+//
 class Pwm : public ProtoThread,
             public Source<MqttMessage>,
             public AbstractSink<MqttMessage> {
@@ -116,7 +114,8 @@ public:
   MedianFilter(uint32_t samples){};
   void recv(double d) { emit(d); };
 };
-
+//_______________________________________________________________________________________________________________
+//
 template <class T> class ToMqtt : public Flow<T, MqttMessage> {
   String _name;
 
@@ -134,10 +133,8 @@ public:
   }
   static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
 };
-
-//_____________________________________ protothreads running _____
+//__________________________________________
 //
-
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
 Publisher publisher;
@@ -157,10 +154,10 @@ void setup() {
   mqtt >> [](MqttMessage m) {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
   };
-
   publisher >> mqtt;
   tacho >> ToMqtt<double>::create("tacho/rpm") >> mqtt;
   tacho >> *(new MedianFilter(10)) >> pwm.rpmMeasured;
+
   ProtoThread::setupAll();
 }
 

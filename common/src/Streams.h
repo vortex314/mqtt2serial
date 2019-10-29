@@ -2,14 +2,18 @@
 #include <deque>
 #include <functional>
 #include <stdint.h>
-#include <string>
 #include <vector>
-
 //______________________________________________________________________________
 //
 template <class T> class AbstractSink {
 public:
   virtual void recv(T) = 0;
+};
+//______________________________________________________________________________
+//
+template <typename T> class AbstractSource {
+public:
+  virtual void emit(T event) = 0;
 };
 //______________________________________________________________________________
 //
@@ -24,12 +28,6 @@ public:
 };
 //______________________________________________________________________________
 //
-
-template <typename T> class AbstractSource {
-public:
-  virtual void emit(T event) = 0;
-};
-
 template <class T> class Source : public AbstractSource<T> {
   std::vector<AbstractSink<T> *> _sinks;
 
@@ -57,12 +55,6 @@ Source<OUT> &operator>>(Source<IN> &source, Flow<IN, OUT> &flow) {
   source.addSink(&flow);
   return flow;
 };
-/*
-template <class IN, class OUT>
-void operator>>(Flow<IN, OUT> &flow, Sink<OUT> &sink) {
-  flow.addSink(&sink);
-};*/
-
 //______________________________________________________________________________
 //
 template <class T> class BufferedSink : public AbstractSink<T> {
@@ -72,7 +64,7 @@ template <class T> class BufferedSink : public AbstractSink<T> {
 public:
   BufferedSink(uint32_t size) : _queueDepth(size) {}
   void recv(T event) {
-    if (_buffer.size() > _queueDepth)
+    if (_buffer.size() >= _queueDepth)
       _buffer.pop_front();
     _buffer.push_back(event);
   };
