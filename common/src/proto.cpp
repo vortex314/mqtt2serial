@@ -123,12 +123,12 @@ void MqttSerial::loop() {
     if (_connectTimer.timeout()) {
       if (millis() > (_loopbackReceived + 2000)) {
         _connected = false;
-        signalOut.emit(DISCONNECTED);
+        connected.emit(false);
         subscribe("dst/" + Sys::hostname + "/#");
         publish(_loopbackTopic, "true");
       } else {
         _connected = true;
-        signalOut.emit(CONNECTED);
+        connected.emit(false);
       }
       _connectTimer.start();
     }

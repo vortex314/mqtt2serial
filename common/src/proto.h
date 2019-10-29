@@ -168,7 +168,7 @@ class MqttSerial : public ProtoThread,public BufferedSink<MqttMessage>,public So
   enum { CMD_SUBSCRIBE = 0, CMD_PUBLISH };
 
  public:
-  Source<Signal> signalOut;
+  Source<bool> connected;
   MqttSerial(Stream &stream);
   ~MqttSerial();
   void setup();

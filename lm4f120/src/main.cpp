@@ -29,12 +29,19 @@ class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
 
 public:
+  HandlerSink<bool> blinkSlow;
   LedBlinker(uint32_t pin, uint32_t delay) {
     _pin = pin;
     _delay = delay;
   }
   void setup() {
     LOG("LedBlinker started.");
+    blinkSlow.handler([=](bool slow) {
+      if (slow)
+        _delay = 500;
+      else
+        _delay = 100;
+    });
     pinMode(_pin, OUTPUT);
     digitalWrite(_pin, 1);
   }
@@ -67,8 +74,8 @@ public:
     PT_BEGIN();
     while (true) {
       emit({"system/upTime", String(millis()), 1, false});
-      emit({"system/build", "\""+Sys::build+"\"", 1, false});
-      emit({"system/cpu", "\""+Sys::cpu+"\"", 1, false});
+      emit({"system/build", "\"" + Sys::build + "\"", 1, false});
+      emit({"system/cpu", "\"" + Sys::cpu + "\"", 1, false});
       emit({"system/heap", String(freeMemory()), 1, false});
       timeout(3000);
       PT_YIELD_UNTIL(timeout());
@@ -92,12 +99,22 @@ public:
   };
 };
 
-class Pwm: public ProtoThread,public Source<MqttMessage>,public AbstractSink<MqttMessage>{
-  public:
-    HandlerSink<double> rpmMeasured;
-    void setup(){};
-    void loop(){};
-    void recv(MqttMessage){};
+class Pwm : public ProtoThread,
+            public Source<MqttMessage>,
+            public AbstractSink<MqttMessage> {
+public:
+  HandlerSink<double> rpmMeasured;
+  void setup() {
+    rpmMeasured.handler([=](double rpm) {});
+  };
+  void loop(){};
+  void recv(MqttMessage){};
+};
+
+class MedianFilter : public Flow<double, double> {
+public:
+  MedianFilter(uint32_t samples){};
+  void recv(double d) { emit(d); };
 };
 
 template <class T> class ToMqtt : public Flow<T, MqttMessage> {
@@ -111,12 +128,11 @@ public:
     JsonVariant variant = doc.to<JsonVariant>();
     variant.set(event);
     serializeJson(doc, s);
-    this->emit({_name, s, 0, false}); 
-    // emit doesn't work  https://stackoverflow.com/questions/9941987/there-are-no-arguments-that-depend-on-a-template-parameter
+    this->emit({_name, s, 0, false});
+    // emit doesn't work
+    // https://stackoverflow.com/questions/9941987/there-are-no-arguments-that-depend-on-a-template-parameter
   }
-  static Flow<T,MqttMessage>& create(String s){
-    return *(new ToMqtt<T>(s));
-  }
+  static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
 };
 
 //_____________________________________ protothreads running _____
@@ -128,6 +144,7 @@ Publisher publisher;
 Tacho tacho(0);
 ToMqtt<double> doubleToMqtt("tacho/rpm");
 Pwm pwm;
+MedianFilter rpmFilter(10);
 
 void setup() {
   Serial.begin(115200);
@@ -136,19 +153,14 @@ void setup() {
   Sys::hostname = "stream2";
   Sys::cpu = "lm4f120h5qr";
 
-  mqtt.signalOut >> [](Signal s) {
-    if (s == CONNECTED)
-      ledBlinkerBlue.delay(500);
-    else if (s == DISCONNECTED)
-      ledBlinkerBlue.delay(100);
-  };
+  mqtt.connected >> ledBlinkerBlue.blinkSlow;
   mqtt >> [](MqttMessage m) {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
   };
 
   publisher >> mqtt;
   tacho >> ToMqtt<double>::create("tacho/rpm") >> mqtt;
- // tacho >> pwm.rpmMeasured;
+  tacho >> rpmFilter>> pwm.rpmMeasured;
   ProtoThread::setupAll();
 }
 
