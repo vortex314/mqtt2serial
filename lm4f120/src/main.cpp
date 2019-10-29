@@ -105,6 +105,7 @@ public:
       emit({"system/build", "\"" + Sys::build + "\""});
       emit({"system/cpu", "\"" + Sys::cpu + "\""});
       emit({"system/heap", String(freeMemory())});
+      emit({"system/board","\"" + Sys::board + "\"" });
       timeout(3000);
       PT_YIELD_UNTIL(timeout());
     }

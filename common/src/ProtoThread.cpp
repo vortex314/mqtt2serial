@@ -5,6 +5,7 @@
 String Sys::cpu = "unknown";
 String Sys::build = __DATE__ " " __TIME__;
 String Sys::hostname = "Arduino";
+String Sys::board = "unknown";
 
 Timer::Timer(uint32_t delta, bool repeat, bool actif) {
   _delta = delta;

@@ -24,6 +24,7 @@ class Sys {
   static String hostname;
   static String cpu;
   static String build;
+  static String board;
 };
 
 //_______________________________________________________________________________________________________________

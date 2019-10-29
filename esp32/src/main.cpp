@@ -81,6 +81,7 @@ public:
       emit({"system/build", "\"" + Sys::build + "\""});
       emit({"system/cpu", "\"" + Sys::cpu + "\""});
       emit({"system/heap", String(ESP.getFreeHeap())});
+      emit({"system/board","\"" + Sys::board + "\"" });
       timeout(3000);
       PT_YIELD_UNTIL(timeout());
     }
@@ -147,6 +148,7 @@ void setup() {
                  " " __TIME__);
   Sys::hostname = "devkit";
   Sys::cpu = "esp32";
+  Sys::board="DevKit V1";
 
   mqtt.connected >> ledBlinkerBlue.blinkSlow;
 
