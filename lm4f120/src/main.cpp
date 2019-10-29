@@ -138,6 +138,25 @@ public:
   }
 //  static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
 };
+//_______________________________________________________________________________________________________________
+//
+template <class T> class FromMqtt : public Flow<MqttMessage, T> {
+  String _name;
+
+public:
+  FromMqtt(String name) : _name(name){};
+  void recv(MqttMessage mqttMessage) {
+    String s = "";
+    DynamicJsonDocument doc(100);
+    doc = mqttMessage;
+    JsonVariant variant = doc.as<JsonVariant>();
+    T value = variant.as<T>();
+    this->emit(value);
+    // emit doesn't work as such
+    // https://stackoverflow.com/questions/9941987/there-are-no-arguments-that-depend-on-a-template-parameter
+  }
+//  static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
+};
 //__________________________________________
 
 MqttSerial mqtt(Serial);
