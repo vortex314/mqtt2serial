@@ -3,6 +3,9 @@
 #include "ProtoThread.h"
 #include <MqttSerial.h>
 
+#define PIN_LED PF_1
+
+
 //_______________________________________________________________________________________________________________
 //
 #ifdef __arm__
@@ -24,7 +27,6 @@ int freeMemory() {
 }
 //_______________________________________________________________________________________________________________
 //
-#define PIN_LED PF_1
 
 class LedBlinker : public ProtoThread {
   uint32_t _pin, _delay;
