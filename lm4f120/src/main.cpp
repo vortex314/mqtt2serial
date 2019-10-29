@@ -92,9 +92,9 @@ public:
   };
 };
 
-class Pwm: public ProtoThread,public Source<MqttMessage>,public Sink<MqttMessage>{
+class Pwm: public ProtoThread,public Source<MqttMessage>,public AbstractSink<MqttMessage>{
   public:
-    Sink<double> rpmMeasured;
+    HandlerSink<double> rpmMeasured;
     void setup(){};
     void loop(){};
     void recv(MqttMessage){};

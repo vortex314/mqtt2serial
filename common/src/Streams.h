@@ -13,12 +13,12 @@ public:
 };
 //______________________________________________________________________________
 //
-template <class T> class Sink : public AbstractSink<T> {
+template <class T> class HandlerSink : public AbstractSink<T> {
   std::function<void(T)> _handler;
 
 public:
-  Sink(){};
-  Sink(std::function<void(T)> handler) : _handler(handler){};
+  HandlerSink(){};
+  HandlerSink(std::function<void(T)> handler) : _handler(handler){};
   void handler(std::function<void(T)> handler) { _handler = handler; };
   void recv(T event) { _handler(event); };
 };
@@ -37,9 +37,9 @@ public:
   Source(){};
   void addSink(AbstractSink<T> *_sink) { _sinks.push_back(_sink); }
   void operator>>(std::function<void(T)> handler) {
-    addSink(new Sink<T>(handler));
+    addSink(new HandlerSink<T>(handler));
   };
-  void operator>>(Sink<T> &sink) { addSink(&sink); }
+  void operator>>(AbstractSink<T> &sink) { addSink(&sink); }
   void emit(T event) {
     for (AbstractSink<T> *sink : _sinks) {
       sink->recv(event);
@@ -65,7 +65,7 @@ void operator>>(Flow<IN, OUT> &flow, Sink<OUT> &sink) {
 
 //______________________________________________________________________________
 //
-template <class T> class BufferedSink : public Sink<T> {
+template <class T> class BufferedSink : public AbstractSink<T> {
   std::deque<T> _buffer;
   uint32_t _queueDepth;
 
