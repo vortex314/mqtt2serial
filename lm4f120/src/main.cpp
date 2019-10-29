@@ -146,10 +146,18 @@ template <class T> class FromMqtt : public Flow<MqttMessage, T> {
 public:
   FromMqtt(String name) : _name(name){};
   void recv(MqttMessage mqttMessage) {
-    String s = "";
+    if ( mqttMessage.topic != _name ) return;
     DynamicJsonDocument doc(100);
-    doc = mqttMessage;
+    deserializeJson(doc,mqttMessage.message);
+    if ( doc.isNull() ){
+      LOG(" failed parsing "+mqttMessage.message);
+      return;
+    }
     JsonVariant variant = doc.as<JsonVariant>();
+    if ( variant.isNull() ){
+            LOG(" failed variant parsing "+mqttMessage.message);
+      return;
+    }
     T value = variant.as<T>();
     this->emit(value);
     // emit doesn't work as such
@@ -182,6 +190,7 @@ void setup() {
   Source<double>& tachoFiltered = tacho >> new MedianFilterFlow<double>(10);
   tachoFiltered >>  pwm.rpmMeasured;
   tachoFiltered >> new ToMqtt<double>("tacho/rpm") >> mqtt;
+  mqtt >> new FromMqtt<double>("pwm/targetSpeed") ;
 
   ProtoThread::setupAll();
 }
