@@ -72,10 +72,9 @@ template <class T> class BufferedSink : public AbstractSink<T> {
 public:
   BufferedSink(uint32_t size) : _queueDepth(size) {}
   void recv(T event) {
-    if (_buffer.size() <= _queueDepth)
-      _buffer.push_back(event);
-    else
-      Serial.println(__FILE__ ":" + String(__LINE__) + " | buffer full");
+    if (_buffer.size() > _queueDepth)
+      _buffer.pop_front();
+    _buffer.push_back(event);
   };
   T getNext() {
     T t = _buffer.front();
