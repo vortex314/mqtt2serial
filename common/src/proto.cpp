@@ -1,4 +1,4 @@
-#include "proto.h"
+#include "ProtoThread.h"
 
 //_______________________________________________________________________________________________________________
 //
@@ -70,8 +70,13 @@ void ProtoThread::setupAll() {
 }
 
 void ProtoThread::loopAll() {
+  uint32_t startTime=millis();
   for (ProtoThread *pt : *pts()) {
+  uint32_t startTime=millis();
     pt->loop();
+    if ( (millis()-startTime)>10) {
+      LOG(" slow protothread : ["+String((uint32_t)pt)+"] "+String(millis()-startTime)+" msec.");
+    }
   }
 }
 void ProtoThread::restart() { _ptLine = 0; }
@@ -94,104 +99,6 @@ bool ProtoThread::clrBits(uint32_t bits) {
 bool ProtoThread::hasBits(uint32_t bits) { return (_bits & bits); }
 //_______________________________________________________________________________________________________________
 //
-
-MqttSerial::MqttSerial(Stream &stream)
-    : BufferedSink<MqttMessage>(5), _stream(stream),
-      _loopbackTimer(1000, true, true), _connectTimer(3000, true, true) {}
-
-MqttSerial::~MqttSerial() {}
-
-void MqttSerial::setup() {
-  LOG("MqttSerial started.");
-  txd.clear();
-  rxd.clear();
-  _loopbackTopic = "dst/" + Sys::hostname + "/system/loopback";
-  _loopbackTimer.start();
-  _connectTimer.start();
-  _loopbackReceived = 0;
-}
-
-void MqttSerial::loop() {
-  PT_BEGIN();
-  timeout(1000);
-  while (true) {
-    PT_YIELD_UNTIL(_stream.available() || timeout() ||
-                   _loopbackTimer.timeout() || hasNext());
-    if (_stream.available()) {
-      rxdSerial(_stream.readString());
-    };
-    if (_connectTimer.timeout()) {
-      if (millis() > (_loopbackReceived + 2000)) {
-        _connected = false;
-        connected.emit(false);
-        subscribe("dst/" + Sys::hostname + "/#");
-        publish(_loopbackTopic, "true");
-      } else {
-        _connected = true;
-        connected.emit(false);
-      }
-      _connectTimer.start();
-    }
-    if (_loopbackTimer.timeout()) {
-      publish(_loopbackTopic, "true");
-      _loopbackTimer.start();
-    }
-    if (hasNext()) {
-      MqttMessage m;
-      m = getNext();
-      if (_connected)
-        publish("src/" + Sys::hostname + "/" + m.topic, m.message);
-    }
-  }
-  PT_END();
-}
-
-void MqttSerial::rxdSerial(String s) {
-  for (uint32_t i = 0; i < s.length(); i++) {
-    char c = s.charAt(i);
-    if ((c == '\n' || c == '\r')) {
-      if (rxdString.length() > 0) {
-        deserializeJson(rxd, rxdString);
-        JsonArray array = rxd.as<JsonArray>();
-        if (!array.isNull()) {
-          if (array[1].as<String>() == _loopbackTopic) {
-            _loopbackReceived = millis();
-            emit({array[1], array[2]});
-          } else {
-            emit({array[1], array[2]});
-          }
-        }
-        rxdString = "";
-      }
-    } else {
-      if (rxdString.length() < 256)
-        rxdString += c;
-    }
-  }
-}
-
-void MqttSerial::publish(String topic, String message) {
-  txd.clear();
-  txd.add((int)CMD_PUBLISH);
-  txd.add(topic);
-  txd.add(message);
-  sendSerial();
-}
-
-void MqttSerial::subscribe(String topic) {
-  txd.clear();
-  txd.add((int)CMD_SUBSCRIBE);
-  txd.add(topic);
-  sendSerial();
-}
-
-void MqttSerial::sendSerial() {
-  String output = "";
-  serializeJson(txd, output);
-  _stream.println(output);
-  _stream.flush();
-}
-bool MqttSerial::isConnected() { return _connected; }
 
 //_______________________________________________________________________________________________________________
 //

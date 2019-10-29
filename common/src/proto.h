@@ -1,3 +1,5 @@
+#ifndef PROTOTHREAD_H
+#define PROTOTHREAD_H
 #include <Arduino.h>
 #define ARDUINOJSON_ENABLE_PROGMEM 0
 #include <ArduinoJson.h>
@@ -140,44 +142,4 @@ class ProtoThread {
   } while (0)
 //_______________________________________________________________________________________________________________
 //
-//_______________________________________________________________________________________________________________
-//
-
-typedef struct MqttMessage {
-  String topic;
-  String message;
-} MqttMessage;
-
-class MqttSerial : public ProtoThread,public BufferedSink<MqttMessage>,public Source<MqttMessage> {
- public:
-
- private:
-  StaticJsonDocument<256> txd;
-  StaticJsonDocument<256> rxd;
-  String rxdString;
-  bool _connected = false;
-  String _loopbackTopic;
-  Stream &_stream;
-  Timer _loopbackTimer;
-  Timer _connectTimer;
-  uint64_t _loopbackReceived;
-
-  enum { CMD_SUBSCRIBE = 0, CMD_PUBLISH };
-
- public:
-  Source<bool> connected;
-  MqttSerial(Stream &stream);
-  ~MqttSerial();
-  void setup();
-  void loop();
-  void rxdSerial(String s);
-  void publish(String topic, String message);
-  void subscribe(String topic);
-  void sendSerial();
-  bool isConnected();
-};
-
-//_______________________________________________________________________________________________________________
-//
-
-int freeMemory();
+#endif

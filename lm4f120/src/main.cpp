@@ -1,6 +1,7 @@
 #include <Arduino.h>
 
-#include "proto.h"
+#include "ProtoThread.h"
+#include <MqttSerial.h>
 
 //_______________________________________________________________________________________________________________
 //
@@ -57,7 +58,36 @@ public:
     }
     PT_END();
   }
-  void delay(uint32_t d) { _delay = d; }
+};
+//_______________________________________________________________________________________________________________
+//
+class Button : public ProtoThread, public Source<bool> {
+  uint32_t _pin;
+  bool _pinOldValue;
+  Timer _timer;
+public:
+  Button(uint32_t button) : _timer(1000,true,true) {
+    if (button == 1)
+      _pin = PF_4;
+    if (button == 2)
+      _pin = PF_0;
+  };
+  void setup() { pinMode(_pin, INPUT_PULLUP); };
+  void loop() {
+    int pinNewValue;
+    PT_BEGIN();
+    while (true) {
+      pinNewValue = digitalRead(_pin)==0;
+      if ((_pinOldValue != pinNewValue) || _timer.timeout() ){
+        emit(pinNewValue);
+        _pinOldValue = pinNewValue;
+        _timer.start();
+      }
+      timeout(10);
+      PT_YIELD_UNTIL(timeout());
+    }
+    PT_END();
+  };
 };
 //_______________________________________________________________________________________________________________
 //
@@ -109,62 +139,20 @@ public:
   void loop(){};
   void recv(MqttMessage){};
 };
+//_______________________________________________________________________________________________________________
+//
 #include <MedianFilter.h>
 template <class T>
-class MedianFilterFlow : public Flow<T, T>,public MedianFilter<T,10> {
+class MedianFilterFlow : public Flow<T, T>, public MedianFilter<T, 10> {
 public:
   MedianFilterFlow(uint32_t samples){};
-  void recv(double d) { 
+  void recv(double d) {
     this->addSample(d);
-    if ( this->isReady()) this->emit(d); 
-    };
+    if (this->isReady())
+      this->emit(d);
+  };
 };
-//_______________________________________________________________________________________________________________
-//
-template <class T> class ToMqtt : public Flow<T, MqttMessage> {
-  String _name;
 
-public:
-  ToMqtt(String name) : _name(name){};
-  void recv(T event) {
-    String s = "";
-    DynamicJsonDocument doc(100);
-    JsonVariant variant = doc.to<JsonVariant>();
-    variant.set(event);
-    serializeJson(doc, s);
-    this->emit({_name, s});
-    // emit doesn't work as such
-    // https://stackoverflow.com/questions/9941987/there-are-no-arguments-that-depend-on-a-template-parameter
-  }
-//  static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
-};
-//_______________________________________________________________________________________________________________
-//
-template <class T> class FromMqtt : public Flow<MqttMessage, T> {
-  String _name;
-
-public:
-  FromMqtt(String name) : _name(name){};
-  void recv(MqttMessage mqttMessage) {
-    if ( mqttMessage.topic != _name ) return;
-    DynamicJsonDocument doc(100);
-    deserializeJson(doc,mqttMessage.message);
-    if ( doc.isNull() ){
-      LOG(" failed parsing "+mqttMessage.message);
-      return;
-    }
-    JsonVariant variant = doc.as<JsonVariant>();
-    if ( variant.isNull() ){
-            LOG(" failed variant parsing "+mqttMessage.message);
-      return;
-    }
-    T value = variant.as<T>();
-    this->emit(value);
-    // emit doesn't work as such
-    // https://stackoverflow.com/questions/9941987/there-are-no-arguments-that-depend-on-a-template-parameter
-  }
-//  static Flow<T, MqttMessage> &create(String s) { return *(new ToMqtt<T>(s)); }
-};
 //__________________________________________
 
 MqttSerial mqtt(Serial);
@@ -172,6 +160,8 @@ LedBlinker ledBlinkerBlue(PIN_LED, 100);
 Publisher publisher;
 Tacho tacho(0);
 Pwm pwm;
+Button button1(1);
+Button button2(2);
 
 void setup() {
   Serial.begin(115200);
@@ -181,16 +171,22 @@ void setup() {
   Sys::cpu = "lm4f120h5qr";
 
   mqtt.connected >> ledBlinkerBlue.blinkSlow;
+
   mqtt >> [](MqttMessage m) {
     Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
   };
+  
   publisher >> mqtt;
   mqtt.connected >> new ToMqtt<bool>("mqtt/connected") >> mqtt;
 
-  Source<double>& tachoFiltered = tacho >> new MedianFilterFlow<double>(10);
-  tachoFiltered >>  pwm.rpmMeasured;
+  Source<double> &tachoFiltered = tacho >> new MedianFilterFlow<double>(10);
+  tachoFiltered >> pwm.rpmMeasured;
   tachoFiltered >> new ToMqtt<double>("tacho/rpm") >> mqtt;
-  mqtt >> new FromMqtt<double>("pwm/targetSpeed") ;
+
+  button1>> new ToMqtt<bool>("button/button1") >> mqtt;
+  button2>> new ToMqtt<bool>("button/button2") >> mqtt;
+
+  mqtt >> new FromMqtt<double>("pwm/targetSpeed") >> new ToMqtt<double>("pwm/targetSpeed") >> mqtt;
 
   ProtoThread::setupAll();
 }

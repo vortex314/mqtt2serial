@@ -3,6 +3,8 @@
 #include <functional>
 #include <stdint.h>
 #include <vector>
+#ifndef STREAMS_H
+#define STREAMS_H
 //______________________________________________________________________________
 //
 template <class T> class AbstractSink {
@@ -92,3 +94,5 @@ typedef enum {
   TXD,
   IO_ERROR
 } Signal;
+
+#endif
