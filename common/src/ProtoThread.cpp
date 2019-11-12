@@ -64,19 +64,18 @@ void ProtoThread::timeout(uint32_t delay) {
 }
 
 void ProtoThread::setupAll() {
-  LOG(" found " + String(pts()->size()) + " protothreads.");
+  LOG(" found %u  protothreads.",pts()->size());
   for (ProtoThread *pt : *pts()) {
     pt->setup();
   }
 }
 
 void ProtoThread::loopAll() {
-  uint32_t startTime=millis();
   for (ProtoThread *pt : *pts()) {
-  uint32_t startTime=millis();
+  uint32_t startTime=Sys::millis();
     pt->loop();
     if ( (millis()-startTime)>10) {
-      LOG(" slow protothread : ["+String((uint32_t)pt)+"] "+String(millis()-startTime)+" msec.");
+      LOG(" slow protothread : %llu",Sys::millis()-startTime);
     }
   }
 }

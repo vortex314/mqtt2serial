@@ -9,24 +9,6 @@
 #include <atomic>
 #include <vector>
 
-#define LOG(s)                  \
-  {                             \
-    Serial.print(millis());     \
-    Serial.print(" " __FILE__); \
-    Serial.print(":");          \
-    Serial.print(__LINE__);     \
-    Serial.print(" : ");        \
-    Serial.println(s);          \
-  }
-
-class Sys {
- public:
-  static String hostname;
-  static String cpu;
-  static String build;
-  static String board;
-};
-
 //_______________________________________________________________________________________________________________
 //
 class Timer {

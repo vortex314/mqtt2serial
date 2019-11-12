@@ -2,9 +2,10 @@
 
 #include "ProtoThread.h"
 #include <MqttSerial.h>
+#include <deque>
+#include <stdio.h>
 
 #define PIN_LED PF_1
-
 
 //_______________________________________________________________________________________________________________
 //
@@ -28,143 +29,96 @@ int freeMemory() {
 //_______________________________________________________________________________________________________________
 //
 
-class LedBlinker : public ProtoThread {
-  uint32_t _pin, _delay;
+class LedBlinker : public Sink<TimerMsg> {
+  uint32_t _pin;
+  bool _on;
 
 public:
-  HandlerSink<bool> blinkSlow;
-  LedBlinker(uint32_t pin, uint32_t delay) {
-    _pin = pin;
-    _delay = delay;
-  }
-  void setup() {
-    LOG("LedBlinker started.");
-    blinkSlow.handler([=](bool slow) {
-      if (slow)
-        _delay = 500;
-      else
-        _delay = 100;
-    });
-    pinMode(_pin, OUTPUT);
-    digitalWrite(_pin, 1);
-  }
-  void loop() {
-    PT_BEGIN();
-    while (true) {
-      timeout(_delay);
-      digitalWrite(_pin, 0);
-      PT_YIELD_UNTIL(timeout());
-      timeout(_delay);
-      digitalWrite(_pin, 1);
-      PT_YIELD_UNTIL(timeout());
-    }
-    PT_END();
-  }
+  LambdaSink<bool> blinkSlow;
+  TimerSource blinkTimer;
+
+  LedBlinker(uint32_t pin, uint32_t delay);
+  void setup();
+  void delay(uint32_t d);
+  void onNext(TimerMsg);
 };
+
+LedBlinker::LedBlinker(uint32_t pin, uint32_t delay)
+    : blinkTimer(1, delay, true) {
+  _pin = pin;
+  blinkTimer.interval(delay);
+  blinkSlow.handler([=](bool flag) {
+    if (flag)
+      blinkTimer.interval(500);
+    else
+      blinkTimer.interval(100);
+  });
+}
+void LedBlinker::setup() {
+  pinMode(_pin, OUTPUT);
+  digitalWrite(_pin, 1);
+  blinkTimer >> *this;
+}
+void LedBlinker::onNext(TimerMsg m) {
+  digitalWrite(_pin, _on);
+  _on = !_on;
+}
+void LedBlinker::delay(uint32_t d) { blinkTimer.interval(d); }
+
 //_______________________________________________________________________________________________________________
 //
-class Button : public ProtoThread, public Source<bool> {
+class Button : public Source<bool>, public Sink<TimerMsg> {
   uint32_t _pin;
   bool _pinOldValue;
-  Timer _timer;
+
 public:
-  Button(uint32_t button) : _timer(1000,true,true) {
+  Button(uint32_t button) {
     if (button == 1)
       _pin = PF_4;
     if (button == 2)
       _pin = PF_0;
   };
-  void setup() { pinMode(_pin, INPUT_PULLUP); };
-  void loop() {
+  void init() { pinMode(_pin, INPUT_PULLUP); };
+  void onNext(TimerMsg m) { request(); }
+  void request() {
     int pinNewValue;
-    PT_BEGIN();
-    while (true) {
-      pinNewValue = digitalRead(_pin)==0;
-      if ((_pinOldValue != pinNewValue) || _timer.timeout() ){
-        emit(pinNewValue);
-        _pinOldValue = pinNewValue;
-        _timer.start();
-      }
-      timeout(10);
-      PT_YIELD_UNTIL(timeout());
+    pinNewValue = digitalRead(_pin) == 0;
+    if ((_pinOldValue != pinNewValue)) {
+      emit(pinNewValue);
+      _pinOldValue = pinNewValue;
     }
-    PT_END();
-  };
-};
-//_______________________________________________________________________________________________________________
-//
-class Publisher : public ProtoThread, public Source<MqttMessage> {
-
-public:
-  Publisher(){};
-  void setup() { LOG("Publisher started"); }
-  void loop() {
-    PT_BEGIN();
-    while (true) {
-      emit({"system/upTime", String(millis())});
-      emit({"system/build", "\"" + Sys::build + "\""});
-      emit({"system/cpu", "\"" + Sys::cpu + "\""});
-      emit({"system/heap", String(freeMemory())});
-      emit({"system/board","\"" + Sys::board + "\"" });
-      timeout(3000);
-      PT_YIELD_UNTIL(timeout());
-    }
-    PT_END();
   }
 };
 //_______________________________________________________________________________________________________________
 //
-class Tacho : public ProtoThread, public Source<double> {
-public:
-  Tacho(uint32_t pwmIdx){};
-  void setup() { LOG("Tacho started"); };
-  void loop() {
-    PT_BEGIN();
-    while (true) {
-      emit(3.14);
-      timeout(1000);
-      PT_YIELD_UNTIL(timeout());
-    }
-    PT_END();
-  };
-};
-//_______________________________________________________________________________________________________________
-//
-class Pwm : public ProtoThread,
-            public Source<MqttMessage>,
-            public AbstractSink<MqttMessage> {
-public:
-  HandlerSink<double> rpmMeasured;
+class Publisher : public Sink<TimerMsg>, public Source<MqttMessage> {
 
-  void setup() {
-    rpmMeasured.handler([=](double rpm) {});
-  };
-  void loop(){};
-  void recv(MqttMessage){};
-};
-//_______________________________________________________________________________________________________________
-//
-#include <MedianFilter.h>
-template <class T>
-class MedianFilterFlow : public Flow<T, T>, public MedianFilter<T, 10> {
 public:
-  MedianFilterFlow(uint32_t samples){};
-  void recv(double d) {
-    this->addSample(d);
-    if (this->isReady())
-      this->emit(d);
-  };
+  Publisher(){};
+
+  void onNext(TimerMsg m) { request(); }
+  void request() {
+    emit({"system/upTime", String(millis())});
+    emit({"system/build", "\"" + Sys::build + "\""});
+    emit({"system/cpu", "\"" + Sys::cpu + "\""});
+    emit({"system/heap", String(freeMemory())});
+    emit({"system/board", "\"" + Sys::board + "\""});
+  }
 };
 
+//_______________________________________________________________________________________________________________
+//
+//_______________________________________________________________________________________________________________
+//
 //__________________________________________
 
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
 Publisher publisher;
-Tacho tacho(0);
-Pwm pwm;
 Button button1(1);
 Button button2(2);
+TimerSource timerButton(10, true, true);
+TimerSource timerLed(100, true, true);
 
 void setup() {
   Serial.begin(115200);
@@ -174,24 +128,21 @@ void setup() {
   Sys::cpu = "lm4f120h5qr";
 
   mqtt.connected >> ledBlinkerBlue.blinkSlow;
+  publisher >> mqtt.outgoing;
+  mqtt.connected >> mqtt.toTopic<bool>("mqtt/connected");
 
-  mqtt >> [](MqttMessage m) {
-    Serial.println(" Lambda :  RXD " + m.topic + "=" + m.message);
-  };
-  
-  publisher >> mqtt;
-  mqtt.connected >> new ToMqtt<bool>("mqtt/connected") >> mqtt;
+  button1 >> mqtt.toTopic<bool>("button/button1");
+  button2 >> mqtt.toTopic<bool>("button/button2");
 
-  Source<double> &tachoFiltered = tacho >> new MedianFilterFlow<double>(10);
-  tachoFiltered >> pwm.rpmMeasured;
-  tachoFiltered >> new ToMqtt<double>("tacho/rpm") >> mqtt;
+  mqtt.fromTopic<double>("pwm/targetSpeed") >>
+      mqtt.toTopic<double>("pwm/targetSpeed");
 
-  button1>> new ToMqtt<bool>("button/button1") >> mqtt;
-  button2>> new ToMqtt<bool>("button/button2") >> mqtt;
-
-  mqtt >> new FromMqtt<double>("pwm/targetSpeed") >> new ToMqtt<double>("pwm/targetSpeed") >> mqtt;
-
-  ProtoThread::setupAll();
 }
 
-void loop() { ProtoThread::loopAll(); }
+void loop() {
+  mqtt.request();
+  ledBlinkerBlue.blinkTimer.request();
+  publisher.request();
+  button1.request();
+  button2.request();
+}

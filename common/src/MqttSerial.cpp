@@ -1,66 +1,73 @@
 #include <MqttSerial.h>
 
-uint32_t startTime;
-void timerStart() { startTime = millis(); }
-void timerStop(String s, uint32_t delta) {
-  uint32_t measured = (millis() - startTime);
-  if (measured > delta) {
-    LOG(" slow  " + s + " " + String(measured));
-  }
-}
+
+#define TIMER_KEEP_ALIVE 1
+#define TIMER_CONNECT 2
+#define TIMER_SERIAL 3
 
 MqttSerial::MqttSerial(Stream &stream)
-    : BufferedSink<MqttMessage>(5), _stream(stream),
-      _loopbackTimer(1000, true, true), _connectTimer(3000, true, true) {}
-
+    : _stream(stream), connected(false), incoming(20), outgoing(20),
+      keepAliveTimer(TIMER_KEEP_ALIVE, 1000, true),
+      connectTimer(TIMER_CONNECT, 3000, true),
+      serialTimer(TIMER_SERIAL, 10, true) {}
 MqttSerial::~MqttSerial() {}
 
 void MqttSerial::setup() {
-  LOG("MqttSerial started. " + String((uint32_t)this));
+  LOG("MqttSerial started. " );
   txd.clear();
   rxd.clear();
-  _hostPrefix = "dst/" + Sys::hostname+"/";
-  _loopbackTopic =  _hostPrefix + "system/loopback";
-  _loopbackTimer.start();
-  _connectTimer.start();
+  _hostPrefix = "dst/" + Sys::hostname + "/";
+  _loopbackTopic = _hostPrefix + "system/loopback";
   _loopbackReceived = 0;
   _stream.setTimeout(0);
+  outgoing >> *this;
+  *this >> incoming;
+  keepAliveTimer >> (Sink<TimerMsg> &)(*this);
+  connectTimer >> (Sink<TimerMsg> &)(*this);
+  serialTimer >> (Sink<TimerMsg> &)(*this);
 }
 
-void MqttSerial::loop() {
-  PT_BEGIN();
-  timeout(1000);
-  while (true) {
-    PT_YIELD_UNTIL(_stream.available() || timeout() ||
-                   _loopbackTimer.timeout() || hasNext());
+void MqttSerial::onNext(TimerMsg tm) {
+  LOG(" timer : %lu ",tm.id);
+  if (tm.id == TIMER_KEEP_ALIVE) {
+    LOG("TIMER_KEEP_ALIVE");
+    publish(_loopbackTopic, "true");
+  } else if (tm.id == TIMER_CONNECT) {
+    LOG("TIMER_CONNECT");
+    if (millis() > (_loopbackReceived + 2000)) {
+      _connected = false;
+      connected.emit(false);
+      subscribe("dst/" + Sys::hostname + "/#");
+      publish(_loopbackTopic, "true");
+    } else {
+      _connected = true;
+      connected.emit(true);
+    }
+  } else if (tm.id == TIMER_SERIAL) {
+    LOG("TIMER_SERIAL");
     if (_stream.available()) {
       String s = _stream.readString();
       rxdSerial(s);
     };
-    if (_connectTimer.timeout()) {
-      if (millis() > (_loopbackReceived + 2000)) {
-        _connected = false;
-        connected.emit(false);
-        subscribe("dst/" + Sys::hostname + "/#");
-        publish(_loopbackTopic, "true");
-      } else {
-        _connected = true;
-        connected.emit(true);
-      }
-      _connectTimer.start();
-    }
-    if (_loopbackTimer.timeout()) {
-      publish(_loopbackTopic, "true");
-      _loopbackTimer.start();
-    }
-    if (hasNext()) {
-      MqttMessage m;
-      m = getNext();
-      if (_connected)
-        publish("src/" + Sys::hostname + "/" + m.topic, m.message);
-    }
+  } else {
+    LOG("Invalid Timer Id");
   }
-  PT_END();
+}
+
+void MqttSerial::onNext(MqttMessage m) {
+  if (connected()) {
+    publish("src/" + Sys::hostname + "/" + m.topic, m.message);
+  };
+}
+
+void MqttSerial::request() {
+  if (connected()) {
+    incoming.request();
+    outgoing.request();
+  }
+  keepAliveTimer.request();
+  connectTimer.request();
+  serialTimer.request();
 }
 
 void MqttSerial::rxdSerial(String s) {
