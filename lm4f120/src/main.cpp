@@ -38,7 +38,7 @@ public:
   TimerSource blinkTimer;
 
   LedBlinker(uint32_t pin, uint32_t delay);
-  void setup();
+  void init();
   void delay(uint32_t d);
   void onNext(TimerMsg);
 };
@@ -54,7 +54,7 @@ LedBlinker::LedBlinker(uint32_t pin, uint32_t delay)
       blinkTimer.interval(100);
   });
 }
-void LedBlinker::setup() {
+void LedBlinker::init() {
   pinMode(_pin, OUTPUT);
   digitalWrite(_pin, 1);
   blinkTimer >> *this;
@@ -121,9 +121,11 @@ TimerSource timerButton(10, true, true);
 TimerSource timerLed(100, true, true);
 
 void setup() {
+  button1.init();
+  button2.init();
+  ledBlinkerBlue.init();
   Serial.begin(115200);
-  Serial.println("\r\n===== Starting ProtoThreads  build " __DATE__
-                 " " __TIME__);
+  Serial.println("\r\n===== Starting  build " __DATE__ " " __TIME__);
   Sys::hostname = "stream2";
   Sys::cpu = "lm4f120h5qr";
 
@@ -136,7 +138,7 @@ void setup() {
 
   mqtt.fromTopic<double>("pwm/targetSpeed") >>
       mqtt.toTopic<double>("pwm/targetSpeed");
-
+  mqtt.init();
 }
 
 void loop() {

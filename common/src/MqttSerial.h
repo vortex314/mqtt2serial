@@ -63,7 +63,7 @@ public:
   void request(){};
 };
 
-class MqttSerial :  public Flow<MqttMessage, MqttMessage> {
+class MqttSerial :  public Sink<TimerMsg>,public Flow<MqttMessage, MqttMessage> {
 public:
 private:
   StaticJsonDocument<256> txd;
@@ -86,7 +86,7 @@ public:
   TimerSource serialTimer;
   MqttSerial(Stream &stream);
   ~MqttSerial();
-  void setup();
+  void init();
   void rxdSerial(String s);
   void publish(String topic, String message);
   void subscribe(String topic);

@@ -12,7 +12,7 @@ MqttSerial::MqttSerial(Stream &stream)
       serialTimer(TIMER_SERIAL, 10, true) {}
 MqttSerial::~MqttSerial() {}
 
-void MqttSerial::setup() {
+void MqttSerial::init() {
   LOG("MqttSerial started. " );
   txd.clear();
   rxd.clear();
@@ -28,7 +28,7 @@ void MqttSerial::setup() {
 }
 
 void MqttSerial::onNext(TimerMsg tm) {
-  LOG(" timer : %lu ",tm.id);
+ // LOG(" timer : %lu ",tm.id);
   if (tm.id == TIMER_KEEP_ALIVE) {
     LOG("TIMER_KEEP_ALIVE");
     publish(_loopbackTopic, "true");
@@ -44,7 +44,7 @@ void MqttSerial::onNext(TimerMsg tm) {
       connected.emit(true);
     }
   } else if (tm.id == TIMER_SERIAL) {
-    LOG("TIMER_SERIAL");
+ //   LOG("TIMER_SERIAL");
     if (_stream.available()) {
       String s = _stream.readString();
       rxdSerial(s);
@@ -61,6 +61,7 @@ void MqttSerial::onNext(MqttMessage m) {
 }
 
 void MqttSerial::request() {
+//  LOG("--");
   if (connected()) {
     incoming.request();
     outgoing.request();
