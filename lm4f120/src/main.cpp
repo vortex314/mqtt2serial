@@ -91,11 +91,9 @@ public:
 };
 //_______________________________________________________________________________________________________________
 //
-class Publisher : public Sink<TimerMsg>, public Source<MqttMessage> {
-
+class Publisher : public Flow<TimerMsg,MqttMessage> {
 public:
   Publisher(){};
-
   void onNext(TimerMsg m) { request(); }
   void request() {
     emit({"system/upTime", String(millis())});
@@ -114,6 +112,7 @@ public:
 
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
+TimerSource publishTicker(1,100,true);
 Publisher publisher;
 Button button1(1);
 Button button2(2);
@@ -130,7 +129,7 @@ void setup() {
   Sys::cpu = "lm4f120h5qr";
 
   mqtt.connected >> ledBlinkerBlue.blinkSlow;
-  publisher >> mqtt.outgoing;
+  publishTicker >> publisher >> mqtt.outgoing;
   mqtt.connected >> mqtt.toTopic<bool>("mqtt/connected");
 
   button1 >> mqtt.toTopic<bool>("button/button1");

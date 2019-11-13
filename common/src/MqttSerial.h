@@ -77,6 +77,7 @@ private:
 
   enum { CMD_SUBSCRIBE = 0, CMD_PUBLISH };
 
+
 public:
   ValueFlow<bool> connected;
   AsyncFlow<MqttMessage> incoming;

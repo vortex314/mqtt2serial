@@ -22,9 +22,10 @@ void MqttSerial::init() {
   _stream.setTimeout(0);
   outgoing >> *this;
   *this >> incoming;
-  keepAliveTimer >> (Sink<TimerMsg> &)(*this);
-  connectTimer >> (Sink<TimerMsg> &)(*this);
-  serialTimer >> (Sink<TimerMsg> &)(*this);
+  Sink<TimerMsg>& me=*this;
+  keepAliveTimer >> me;
+  connectTimer >> me;
+  serialTimer >> me;
 }
 
 void MqttSerial::onNext(TimerMsg tm) {
