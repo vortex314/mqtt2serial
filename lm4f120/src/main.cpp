@@ -1,9 +1,7 @@
 #include <Arduino.h>
-
-#include "ProtoThread.h"
 #include <MqttSerial.h>
 #include <deque>
-#include <stdio.h>
+//#include <stdio.h>
 
 #define PIN_LED PF_1
 
@@ -70,16 +68,27 @@ void LedBlinker::delay(uint32_t d) { blinkTimer.interval(d); }
 class Button : public Source<bool>, public Sink<TimerMsg> {
   uint32_t _pin;
   bool _pinOldValue;
+  static Button* _me;
 
 public:
+AsyncFlow<bool> buttonPressed=false;
   Button(uint32_t button) {
     if (button == 1)
       _pin = PF_4;
     if (button == 2)
       _pin = PF_0;
+    _me=this;
   };
-  void init() { pinMode(_pin, INPUT_PULLUP); };
+
+  static void ISR(){_me->buttonPressed.onNext(digitalRead(_me->_pin)==0);}
+
+  void init() { 
+    pinMode(_pin, INPUT_PULLUP); 
+    attachInterrupt(1, ISR, CHANGE);
+  };
+
   void onNext(TimerMsg m) { request(); }
+
   void request() {
     int pinNewValue;
     pinNewValue = digitalRead(_pin) == 0;
@@ -89,6 +98,8 @@ public:
     }
   }
 };
+
+Button* Button::_me;
 //_______________________________________________________________________________________________________________
 //
 class Publisher : public Flow<TimerMsg,MqttMessage> {
@@ -116,8 +127,10 @@ TimerSource publishTicker(1,100,true);
 Publisher publisher;
 Button button1(1);
 Button button2(2);
-TimerSource timerButton(10, true, true);
-TimerSource timerLed(100, true, true);
+TimerSource timerButton(1, 10, true);
+TimerSource timerLed(1,100, true);
+TimerSource ticker(1,1,true);
+
 
 void setup() {
   button1.init();
@@ -129,14 +142,12 @@ void setup() {
   Sys::cpu = "lm4f120h5qr";
 
   mqtt.connected >> ledBlinkerBlue.blinkSlow;
+
   publishTicker >> publisher >> mqtt.outgoing;
   mqtt.connected >> mqtt.toTopic<bool>("mqtt/connected");
-
   button1 >> mqtt.toTopic<bool>("button/button1");
   button2 >> mqtt.toTopic<bool>("button/button2");
 
-  mqtt.fromTopic<double>("pwm/targetSpeed") >>
-      mqtt.toTopic<double>("pwm/targetSpeed");
   mqtt.init();
 }
 

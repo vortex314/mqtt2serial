@@ -1,6 +1,7 @@
 //_______________________________________________________________________________________________________________
 //
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include <Streams.h>
 
 typedef struct MqttMessage {
