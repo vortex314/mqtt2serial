@@ -70,7 +70,6 @@ private:
   StaticJsonDocument<256> txd;
   StaticJsonDocument<256> rxd;
   String rxdString;
-  bool _connected = false;
   String _loopbackTopic;
   Stream &_stream;
   uint64_t _loopbackReceived;
@@ -80,7 +79,7 @@ private:
 
 
 public:
-  ValueFlow<bool> connected;
+  ValueFlow<bool> connected=false;
   AsyncFlow<MqttMessage> incoming;
   AsyncFlow<MqttMessage> outgoing;
   TimerSource keepAliveTimer;
@@ -93,7 +92,6 @@ public:
   void publish(String topic, String message);
   void subscribe(String topic);
   void sendSerial();
-  bool isConnected();
   void onNext(MqttMessage);
   void onNext(TimerMsg);
   void request();

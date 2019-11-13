@@ -3,7 +3,7 @@
 #include <deque>
 //#include <stdio.h>
 
-#define PIN_LED PF_1
+#define PIN_LED PF_2
 
 //_______________________________________________________________________________________________________________
 //
@@ -65,88 +65,110 @@ void LedBlinker::delay(uint32_t d) { blinkTimer.interval(d); }
 
 //_______________________________________________________________________________________________________________
 //
-class Button : public Source<bool>, public Sink<TimerMsg> {
+class Button : public AsyncFlow<bool> {
   uint32_t _pin;
   bool _pinOldValue;
-  static Button* _me;
+  static Button *_me;
 
 public:
-AsyncFlow<bool> buttonPressed=false;
-  Button(uint32_t button) {
+  Button(uint32_t button) : AsyncFlow<bool>(20) {
     if (button == 1)
       _pin = PF_4;
     if (button == 2)
       _pin = PF_0;
-    _me=this;
+    _me = this;
   };
 
-  static void ISR(){_me->buttonPressed.onNext(digitalRead(_me->_pin)==0);}
+  static void ISR() { _me->onNext(digitalRead(_me->_pin) == 0); LOG(""); }
 
-  void init() { 
-    pinMode(_pin, INPUT_PULLUP); 
-    attachInterrupt(1, ISR, CHANGE);
+  void init() {
+    pinMode(_pin, INPUT_PULLUP);
+    attachInterrupt(_pin, ISR, CHANGE);
   };
+};
 
-  void onNext(TimerMsg m) { request(); }
+Button *Button::_me;
 
-  void request() {
-    int pinNewValue;
-    pinNewValue = digitalRead(_pin) == 0;
-    if ((_pinOldValue != pinNewValue)) {
-      emit(pinNewValue);
-      _pinOldValue = pinNewValue;
+//_______________________________________________________________________________________________________________
+//
+//______________________________________________________________________
+//
+class Poller : public Sink<TimerMsg> {
+  std::vector<Requestable *> _requestables;
+  uint32_t _idx = 0;
+
+public:
+  ValueFlow<bool> run = false;
+  Poller(){};
+  void onNext(TimerMsg m) {
+    _idx++;
+    if (_idx >= _requestables.size())
+      _idx = 0;
+    if (_requestables.size() && run()) {
+      _requestables[_idx]->request();
     }
   }
-};
-
-Button* Button::_me;
-//_______________________________________________________________________________________________________________
-//
-class Publisher : public Flow<TimerMsg,MqttMessage> {
-public:
-  Publisher(){};
-  void onNext(TimerMsg m) { request(); }
-  void request() {
-    emit({"system/upTime", String(millis())});
-    emit({"system/build", "\"" + Sys::build + "\""});
-    emit({"system/cpu", "\"" + Sys::cpu + "\""});
-    emit({"system/heap", String(freeMemory())});
-    emit({"system/board", "\"" + Sys::board + "\""});
+  Poller &operator()(Requestable &rq) {
+    _requestables.push_back(&rq);
+    return *this;
   }
 };
-
-//_______________________________________________________________________________________________________________
-//
 //_______________________________________________________________________________________________________________
 //
 //__________________________________________
 
 MqttSerial mqtt(Serial);
 LedBlinker ledBlinkerBlue(PIN_LED, 100);
-TimerSource publishTicker(1,100,true);
-Publisher publisher;
 Button button1(1);
 Button button2(2);
 TimerSource timerButton(1, 10, true);
-TimerSource timerLed(1,100, true);
-TimerSource ticker(1,1,true);
+TimerSource timerLed(1, 100, true);
+TimerSource ticker(1, 1, true);
+TimerSource pollTimer(1, 1000, true);
 
+Poller poller;
+
+ValueFlow<String> systemBuild;
+ValueFlow<String> systemHostname;
+ValueFlow<String> systemCpu;
+ValueFlow<String> systemBoard;
+
+// ValueFlow<bool> systemAlive=true;
+LambdaSource<uint32_t> systemHeap([]() { return freeMemory(); });
+LambdaSource<uint64_t> systemUptime([]() { return Sys::millis(); });
 
 void setup() {
+  Serial.begin(115200);
+  Serial.println("\r\n===== Starting  build " __DATE__ " " __TIME__);
+  Sys::hostname = "lm4f120";
+  Sys::cpu = "lm4f120h5qr";
+  Sys::board = "stellaris";
+  systemBuild = __DATE__ " " __TIME__;
+  systemHostname = Sys::hostname;
+  systemCpu = Sys::cpu;
+  systemBoard = Sys::board;
   button1.init();
   button2.init();
   ledBlinkerBlue.init();
-  Serial.begin(115200);
-  Serial.println("\r\n===== Starting  build " __DATE__ " " __TIME__);
-  Sys::hostname = "stream2";
-  Sys::cpu = "lm4f120h5qr";
 
   mqtt.connected >> ledBlinkerBlue.blinkSlow;
-
-  publishTicker >> publisher >> mqtt.outgoing;
+  mqtt.connected >> poller.run;
   mqtt.connected >> mqtt.toTopic<bool>("mqtt/connected");
+
+  systemHeap >> mqtt.toTopic<uint32_t>("system/heap");
+  systemUptime >> mqtt.toTopic<uint64_t>("system/upTime");
+  systemBuild >> mqtt.toTopic<String>("system/build");
+  systemHostname >> mqtt.toTopic<String>("system/hostname");
+  systemBoard >> mqtt.toTopic<String>("system/board");
+
+  pollTimer >> poller(systemHostname)(systemHeap)(systemBuild)(systemUptime)(
+                   systemBoard);
+
   button1 >> mqtt.toTopic<bool>("button/button1");
   button2 >> mqtt.toTopic<bool>("button/button2");
+  auto& logger = *new LambdaSink<bool>([](bool b) { LOG("BUTTON %d", b); });
+  button1 >> logger;
+  button2 >> logger;
 
   mqtt.init();
 }
@@ -154,7 +176,9 @@ void setup() {
 void loop() {
   mqtt.request();
   ledBlinkerBlue.blinkTimer.request();
-  publisher.request();
+  timerLed.request();
+  pollTimer.request();
+  mqtt.outgoing.request();
   button1.request();
   button2.request();
 }

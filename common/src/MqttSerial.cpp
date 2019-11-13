@@ -26,23 +26,22 @@ void MqttSerial::init() {
   keepAliveTimer >> me;
   connectTimer >> me;
   serialTimer >> me;
+  connected.emitOnChange(true);
 }
 
 void MqttSerial::onNext(TimerMsg tm) {
- // LOG(" timer : %lu ",tm.id);
+ //LOG(" timer : %lu ",tm.id);
   if (tm.id == TIMER_KEEP_ALIVE) {
-    LOG("TIMER_KEEP_ALIVE");
+    LOG(" connected : %d ",connected());
     publish(_loopbackTopic, "true");
+    outgoing.onNext({"system/alive","true"});
   } else if (tm.id == TIMER_CONNECT) {
-    LOG("TIMER_CONNECT");
     if (millis() > (_loopbackReceived + 2000)) {
-      _connected = false;
-      connected.emit(false);
+      connected = false;
       subscribe("dst/" + Sys::hostname + "/#");
       publish(_loopbackTopic, "true");
     } else {
-      _connected = true;
-      connected.emit(true);
+      connected = true;
     }
   } else if (tm.id == TIMER_SERIAL) {
  //   LOG("TIMER_SERIAL");
@@ -62,7 +61,6 @@ void MqttSerial::onNext(MqttMessage m) {
 }
 
 void MqttSerial::request() {
-//  LOG("--");
   if (connected()) {
     incoming.request();
     outgoing.request();
@@ -117,4 +115,3 @@ void MqttSerial::sendSerial() {
   _stream.println(output);
   _stream.flush();
 }
-bool MqttSerial::isConnected() { return _connected; }
