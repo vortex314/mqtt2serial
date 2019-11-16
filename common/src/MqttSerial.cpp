@@ -32,7 +32,6 @@ void MqttSerial::init() {
 void MqttSerial::onNext(TimerMsg tm) {
  //LOG(" timer : %lu ",tm.id);
   if (tm.id == TIMER_KEEP_ALIVE) {
-    LOG(" connected : %d ",connected());
     publish(_loopbackTopic, "true");
     outgoing.onNext({"system/alive","true"});
   } else if (tm.id == TIMER_CONNECT) {
