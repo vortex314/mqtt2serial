@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include <Streams.h>
 #include <MqttSerial.h>
 #include <deque>
 //#include <stdio.h>
@@ -128,10 +129,10 @@ TimerSource pollTimer(1, 1000, true);
 
 Poller poller;
 
-ValueFlow<String> systemBuild;
-ValueFlow<String> systemHostname;
-ValueFlow<String> systemCpu;
-ValueFlow<String> systemBoard;
+ValueFlow<String> systemBuild("");
+ValueFlow<String> systemHostname("");
+ValueFlow<String> systemCpu("");
+ValueFlow<String> systemBoard("");
 
 // ValueFlow<bool> systemAlive=true;
 LambdaSource<uint32_t> systemHeap([]() { return freeMemory(); });
