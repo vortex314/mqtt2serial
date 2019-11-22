@@ -15,7 +15,7 @@ template <class T> class ToMqtt : public Flow<T, MqttMessage> {
 
 public:
   ToMqtt(String name) : _name(name){};
-  void onNext(T event) {
+  void onNext(const T& event) {
     String s;
     DynamicJsonDocument doc(100);
     JsonVariant variant = doc.to<JsonVariant>();
@@ -35,7 +35,7 @@ template <class T> class FromMqtt : public Flow<MqttMessage, T> {
 
 public:
   FromMqtt(String name) : _name(name){};
-  void onNext(MqttMessage mqttMessage) {
+  void onNext(const MqttMessage& mqttMessage) {
     if (mqttMessage.topic != _name) {
       return;
     }
@@ -92,8 +92,8 @@ public:
   void publish(String topic, String message);
   void subscribe(String topic);
   void sendSerial();
-  void onNext(MqttMessage);
-  void onNext(TimerMsg);
+  void onNext(const MqttMessage&);
+  void onNext(const TimerMsg&);
   void request();
   template <class T> Sink<T> &toTopic(const char *name) {
     return *(new ToMqtt<T>(name)) >> outgoing;
