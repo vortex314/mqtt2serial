@@ -39,7 +39,7 @@ public:
   LedBlinker(uint32_t pin, uint32_t delay);
   void init();
   void delay(uint32_t d);
-  void onNext(TimerMsg);
+  void onNext(const TimerMsg&);
 };
 
 LedBlinker::LedBlinker(uint32_t pin, uint32_t delay)
@@ -58,7 +58,7 @@ void LedBlinker::init() {
   digitalWrite(_pin, 1);
   blinkTimer >> *this;
 }
-void LedBlinker::onNext(TimerMsg m) {
+void LedBlinker::onNext(const TimerMsg& m) {
   digitalWrite(_pin, _on);
   _on = !_on;
 }
@@ -94,25 +94,30 @@ Button *Button::_me;
 //
 //______________________________________________________________________
 //
-class Poller : public Sink<TimerMsg> {
-  std::vector<Requestable *> _requestables;
-  uint32_t _idx = 0;
+class Poller : public TimerSource, public Sink<TimerMsg> {
+		std::vector<Requestable*> _requestables;
+		uint32_t _idx = 0;
 
-public:
-  ValueFlow<bool> run = false;
-  Poller(){};
-  void onNext(TimerMsg m) {
-    _idx++;
-    if (_idx >= _requestables.size())
-      _idx = 0;
-    if (_requestables.size() && run()) {
-      _requestables[_idx]->request();
-    }
-  }
-  Poller &operator()(Requestable &rq) {
-    _requestables.push_back(&rq);
-    return *this;
-  }
+	public:
+		ValueFlow<bool> run = false;
+		Poller(uint32_t iv)
+			: TimerSource(1, 1000, true) {
+			interval(iv);
+			*this >> *this;
+		};
+
+		void onNext(const TimerMsg& tm) {
+			_idx++;
+			if(_idx >= _requestables.size()) _idx = 0;
+			if(_requestables.size() && run()) {
+				_requestables[_idx]->request();
+			}
+		}
+
+		Poller& operator()(Requestable& rq) {
+			_requestables.push_back(&rq);
+			return *this;
+		}
 };
 //_______________________________________________________________________________________________________________
 //
@@ -127,7 +132,7 @@ TimerSource timerLed(1, 100, true);
 TimerSource ticker(1, 1, true);
 TimerSource pollTimer(1, 1000, true);
 
-Poller poller;
+Poller poller(100);
 
 ValueFlow<String> systemBuild("");
 ValueFlow<String> systemHostname("");

@@ -29,7 +29,7 @@ void MqttSerial::init() {
   connected.emitOnChange(true);
 }
 
-void MqttSerial::onNext(TimerMsg tm) {
+void MqttSerial::onNext(const TimerMsg& tm) {
  //LOG(" timer : %lu ",tm.id);
   if (tm.id == TIMER_KEEP_ALIVE) {
     publish(_loopbackTopic, "true");
@@ -53,7 +53,7 @@ void MqttSerial::onNext(TimerMsg tm) {
   }
 }
 
-void MqttSerial::onNext(MqttMessage m) {
+void MqttSerial::onNext(const MqttMessage& m) {
   if (connected()) {
     publish("src/" + Sys::hostname + "/" + m.topic, m.message);
   };
