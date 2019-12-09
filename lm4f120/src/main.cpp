@@ -1,6 +1,6 @@
 #include <Arduino.h>
-#include <Streams.h>
 #include <MqttSerial.h>
+#include <Streams.h>
 #include <deque>
 //#include <stdio.h>
 
@@ -39,7 +39,7 @@ public:
   LedBlinker(uint32_t pin, uint32_t delay);
   void init();
   void delay(uint32_t d);
-  void onNext(const TimerMsg&);
+  void onNext(const TimerMsg &);
 };
 
 LedBlinker::LedBlinker(uint32_t pin, uint32_t delay)
@@ -58,7 +58,7 @@ void LedBlinker::init() {
   digitalWrite(_pin, 1);
   blinkTimer >> *this;
 }
-void LedBlinker::onNext(const TimerMsg& m) {
+void LedBlinker::onNext(const TimerMsg &m) {
   digitalWrite(_pin, _on);
   _on = !_on;
 }
@@ -80,11 +80,27 @@ public:
     _me = this;
   };
 
-  static void ISR() { _me->onNext(digitalRead(_me->_pin) == 0); LOG(""); }
+  template <int pinNbr> static void ISR() {
+    bool pressed = digitalRead(pinNbr) == 0;
+    _me->onNext(pressed);
+    LOG("pressed %d : %d", pinNbr, pressed);
+  }
+
+  static void f(){
+
+  }
 
   void init() {
     pinMode(_pin, INPUT_PULLUP);
-    attachInterrupt(_pin, ISR, CHANGE);
+    if (_pin == PF_4)
+      attachInterrupt(_pin, ISR<PF_4>, CHANGE);
+    if (_pin == PF_0){
+      attachInterrupt(_pin,ISR<PF_0>,CHANGE);
+    }
+ /*     attachInterrupt(_pin, ([&](){
+        emit(digitalRead(_pin) == 0);
+//        LOG(" lambda ");
+      }), CHANGE);*/
   };
 };
 
@@ -95,29 +111,29 @@ Button *Button::_me;
 //______________________________________________________________________
 //
 class Poller : public TimerSource, public Sink<TimerMsg> {
-		std::vector<Requestable*> _requestables;
-		uint32_t _idx = 0;
+  std::vector<Requestable *> _requestables;
+  uint32_t _idx = 0;
 
-	public:
-		ValueFlow<bool> run = false;
-		Poller(uint32_t iv)
-			: TimerSource(1, 1000, true) {
-			interval(iv);
-			*this >> *this;
-		};
+public:
+  ValueFlow<bool> run = false;
+  Poller(uint32_t iv) : TimerSource(1, 1000, true) {
+    interval(iv);
+    *this >> *this;
+  };
 
-		void onNext(const TimerMsg& tm) {
-			_idx++;
-			if(_idx >= _requestables.size()) _idx = 0;
-			if(_requestables.size() && run()) {
-				_requestables[_idx]->request();
-			}
-		}
+  void onNext(const TimerMsg &tm) {
+    _idx++;
+    if (_idx >= _requestables.size())
+      _idx = 0;
+    if (_requestables.size() && run()) {
+      _requestables[_idx]->request();
+    }
+  }
 
-		Poller& operator()(Requestable& rq) {
-			_requestables.push_back(&rq);
-			return *this;
-		}
+  Poller &operator()(Requestable &rq) {
+    _requestables.push_back(&rq);
+    return *this;
+  }
 };
 //_______________________________________________________________________________________________________________
 //
@@ -172,9 +188,9 @@ void setup() {
 
   button1 >> mqtt.toTopic<bool>("button/button1");
   button2 >> mqtt.toTopic<bool>("button/button2");
-  auto& logger = *new LambdaSink<bool>([](bool b) { LOG("BUTTON %d", b); });
+  auto &logger = *new LambdaSink<bool>([](bool b) { LOG("BUTTON %d", b); });
   button1 >> logger;
-  button2 >> logger;
+  //  button2 >> logger;
 
   mqtt.init();
 }
