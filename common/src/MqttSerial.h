@@ -2,7 +2,7 @@
 //
 #include <Arduino.h>
 #include <ArduinoJson.h>
-#include <Streams.h>
+#include <NanoAkka.h>
 
 typedef struct MqttMessage {
   String topic;
@@ -64,7 +64,7 @@ public:
   void request(){};
 };
 
-class MqttSerial :  public Sink<TimerMsg>,public Flow<MqttMessage, MqttMessage> {
+class MqttSerial :  public Sink<TimerMsg,3>,public Flow<MqttMessage, MqttMessage> {
 public:
 private:
   StaticJsonDocument<256> txd;

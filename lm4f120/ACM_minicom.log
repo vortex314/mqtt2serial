@@ -1,0 +1,188 @@
+Y
+W 001271 | /home/lieven:234 | BUSY
+W 001274 | /home/lieven:234 | BUSY
+W 001277 | /home/lieven:234 | BUSY
+W 001280 | /homI 020742 | src/main.cpp:176 |  handled 50000 messages in 1470 msec = 34 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 022228 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+
+===== Starting  build Mar 29 2020 20:30:46
+I 000002 | src/MqttSeri:011 | MqttSerial started. 
+ sizeof(int) : 4
+I 000009 | src/main.cpp:176 |  handled 50000 messages in 9 msec = 5555 msg/msec 
+I 000500 | src/main.cpp:258 | board : StellarisLaunchPad 
+[1,"dst/titiva/system/loopback","true"]
+I 001300 | src/main.cpp:258 | board : StellarisLaunchPad 
+I 001493 | src/main.cpp:176 |  handled 50000 messages in 1477 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 002100 | src/main.cpp:258 | board : StellarisLaunchPad 
+I 002900 | src/main.cpp:258 | board : StellarisLaunchPad 
+I 002978 | src/main.cpp:176 |  handled 50000 messages in 1479 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 004462 | src/main.cpp:176 |  handled 50000 messages in 1479 msec = 33 msg/msec 
+
+===== Starting  build Mar 29 2020 20:30:46
+I 000002 | src/MqttSeri:011 | MqttSerial started. 
+ sizeof(int) : 4
+I 000009 | src/main.cpp:176 |  handled 50000 messages in 9 msec = 5555 msg/msec 
+I 000500 | src/main.cpp:258 | board : StellarisLaunchPad 
+[1,"dst/titiva/system/loopback","true"]
+I 001300 | src/main.cpp:258 | board : StellarisLaunchPad 
+I 001493 | src/main.cpp:176 |  handled 50000 messages in 1477 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 002100 | src/main.cpp:258 | board : StellarisLaunchPad 
+I 002900 | src/main.cpp:258 | board : StellarisLaunchPad 
+I 002978 | src/main.cpp:176 |  handled 50000 messages in 1479 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 004462 | src/main.cpp:176 |  handled 50000 messages in 1479 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 005938 | src/main.cpp:176 |  handled 50000 messages in 1470 msec = 34 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 007422 | src/main.cpp:176 |  handled 50000 messages in 1478 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 008898 | src/main.cpp:176 |  handled 50000 messages in 1470 msec = 34 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 010382 | src/main.cpp:176 |  handled 50000 messages in 1478 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 011858 | src/main.cpp:176 |  handled 50000 messages in 1470 msec = 34 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 013342 | src/main.cpp:176 |  handled 50000 messages in 1478 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 014818 | src/main.cpp:176 |  handled 50000 messages in 1470 msec = 34 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 016303 | src/main.cpp:176 |  handled 50000 messages in 1479 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 017780 | src/main.cpp:176 |  handled 50000 messages in 1471 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 019266 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 020742 | src/main.cpp:176 |  handled 50000 messages in 1470 msec = 34 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 022228 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 023705 | src/main.cpp:176 |  handled 50000 messages in 1471 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 025191 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 026667 | src/main.cpp:176 |  handled 50000 messages in 1470 msec = 34 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 028153 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 029630 | src/main.cpp:176 |  handled 50000 messages in 1471 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 031116 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 032593 | src/main.cpp:176 |  handled 50000 messages in 1471 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 034078 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 035555 | src/main.cpp:176 |  handled 50000 messages in 1471 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 037041 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 038518 | src/main.cpp:176 |  handled 50000 messages in 1471 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 040004 | src/main.cpp:176 |  handled 50000 messages in 1480 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+I 041480 | src/main.cpp:176 |  handled 50000 messages in 1471 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 042962 | src/main.cpp:176 |  handled 50000 messages in 1476 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 044443 | src/main.cpp:176 |  handled 50000 messages in 1475 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 045925 | src/main.cpp:176 |  handled 50000 messages in 1476 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 047405 | src/main.cpp:176 |  handled 50000 messages in 1474 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 048888 | src/main.cpp:176 |  handled 50000 messages in 1477 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 050368 | src/main.cpp:176 |  handled 50000 messages in 1475 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 051850 | src/main.cpp:176 |  handled 50000 messages in 1476 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 053330 | src/main.cpp:176 |  handled 50000 messages in 1474 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 054813 | src/main.cpp:176 |  handled 50000 messages in 1477 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 056293 | src/main.cpp:176 |  handled 50000 messages in 1474 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 057775 | src/main.cpp:176 |  handled 50000 messages in 1476 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 059256 | src/main.cpp:176 |  handled 50000 messages in 1475 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 060738 | src/main.cpp:176 |  handled 50000 messages in 1477 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
+I 062218 | src/main.cpp:176 |  handled 50000 messages in 1474 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[0,"dst/titiva/#"]
+[1,"dst/titiva/system/loopback","true"]
+I 063700 | src/main.cpp:176 |  handled 50000 messages in 1476 msec = 33 msg/msec 
+[1,"dst/titiva/system/loopback","true"]
+[1,"dst/titiva/system/loopback","true"]
