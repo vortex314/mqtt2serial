@@ -50,6 +50,7 @@ public:
   void init();
   void delay(uint32_t d);
   void on(const TimerMsg &);
+
 };
 
 LedBlinker::LedBlinker(Thread &thr, uint32_t pin, uint32_t delay)
@@ -72,6 +73,7 @@ void LedBlinker::init()
 }
 void LedBlinker::on(const TimerMsg &m)
 {
+
   digitalWrite(_pin, _on);
   _on = !_on;
 }
@@ -115,6 +117,7 @@ public:
   {
     if (_button1)
       _button1->newValue(digitalRead(_button1->_pin) == 0);
+
   }
 
   static void isrButton2()
@@ -130,6 +133,7 @@ public:
       attachInterrupt(_pin, isrButton1, CHANGE);
     if (_pin == PF_0)
       attachInterrupt(_pin, isrButton2, CHANGE);
+
   };
 };
 
@@ -267,6 +271,7 @@ void setup()
   echo.out >> pinger.in;
   pinger.start();
   Serial.println(" sizeof(int) : "+String(sizeof(int)));
+
 }
 
 void loop()
