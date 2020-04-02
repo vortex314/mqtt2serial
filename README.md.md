@@ -42,3 +42,9 @@ Top to bottom :
 - Stellaris Launchpas lm4f120h5qr
 - maple - stm32f103 with stlink clone
 
+### Folder structure 
+- simple : most Basic Arduino example
+- 
+<!--stackedit_data:
+eyJoaXN0b3J5IjpbLTk1Nzk1NjU0MV19
+-->
