@@ -45,6 +45,7 @@ Top to bottom :
 ### Folder structure 
 - simple : most Basic Arduino example
 - lm4f120 : nanoAkka based example handling, communication connection, re-subscribing, loopback detection
+- ... in progress 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTUxNjA0NjM0XX0=
+eyJoaXN0b3J5IjpbMTk3NzkzNDY3OV19
 -->
