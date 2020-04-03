@@ -48,11 +48,11 @@ Top to bottom :
   * it will detect a failing connection
   * it sends out a loopback message to itself, to check the E2E connectivity with MQTT
   * it automatically resubscribes to his own destination based on hostname
--- it stops all publishes until a connection is reliably present
--- it's reactive stream driven based nanoAkka 
--- it should work on any Arduino having a serial or USB CDC connection.
-- ... in progress 
+  * it stops all publishes until a connection is reliably present
+  *  it's reactive stream driven based nanoAkka 
+  * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
+
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjE2NDM5MDgsLTYxODM3NDI1MCwtMTI5Mz
+eyJoaXN0b3J5IjpbOTQyMDE2NzcsLTYxODM3NDI1MCwtMTI5Mz
 kwODc2MCwxOTc3OTM0Njc5XX0=
 -->
