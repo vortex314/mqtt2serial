@@ -45,14 +45,14 @@ Top to bottom :
 ### Folder structure 
 - simple : most Basic Arduino example. Just a serial println publishing a topic. 
 - lm4f120 : Serial Mqtt full example , it has more features :
--- it will detect a failing connection
--- it sends out a loopback message to itself, to check the E2E connectivity with MQTT
+ + it will detect a failing connection
+ + it sends out a loopback message to itself, to check the E2E connectivity with MQTT
 -- it automatically resubscribes to his own destination based on hostname
 -- it stops all publishes until a connection is reliably present
 -- it's reactive stream driven based nanoAkka 
 -- it should work on any Arduino having a serial or USB CDC connection.
 - ... in progress 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTYxODM3NDI1MCwtMTI5MzkwODc2MCwxOT
-c3OTM0Njc5XX0=
+eyJoaXN0b3J5IjpbMTM4NDY0OTcwOCwtNjE4Mzc0MjUwLC0xMj
+kzOTA4NzYwLDE5Nzc5MzQ2NzldfQ==
 -->
