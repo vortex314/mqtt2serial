@@ -44,8 +44,11 @@ Top to bottom :
 
 ### Folder structure 
 - simple : most Basic Arduino example. Just a serial println publishing a topic. 
-- lm4f120 : nanoAkka based example handling, communication connection, re-subscribing, loopback detection
+- lm4f120 : Serial Mqtt full example , it has more features :
+-- it will detect a failing connection
+-- it sends out a loopback message to itself, to check the E2E connectivity wnanoAkka based example handling, communication connection, re-subscribing, loopback detection
 - ... in progress 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEyOTM5MDg3NjAsMTk3NzkzNDY3OV19
+eyJoaXN0b3J5IjpbMzAzNDUzNzAsLTEyOTM5MDg3NjAsMTk3Nz
+kzNDY3OV19
 -->
