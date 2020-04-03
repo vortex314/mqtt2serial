@@ -43,9 +43,9 @@ Top to bottom :
 - maple - stm32f103 with stlink clone
 
 ### Folder structure 
-- simple : most Basic Arduino example
+- simple : most Basic Arduino example. Just a serial println publishing a topic. 
 - lm4f120 : nanoAkka based example handling, communication connection, re-subscribing, loopback detection
 - ... in progress 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTk3NzkzNDY3OV19
+eyJoaXN0b3J5IjpbLTEyOTM5MDg3NjAsMTk3NzkzNDY3OV19
 -->
