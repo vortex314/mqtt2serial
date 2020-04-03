@@ -44,7 +44,8 @@ Top to bottom :
 
 ### Folder structure 
 - simple : most Basic Arduino example. Just a serial println publishing a topic. 
-- lm4f120 : Serial Mqtt full example , it has more features :
+- subscribe ( TBC ) : subscribe to a topic and handle messages. 
+- Serial Mqtt full example , it has more features :
   * it will detect a failing connection
   * it sends out a loopback message to itself, to check the E2E connectivity with MQTT
   * it automatically resubscribes to his own destination based on hostname
@@ -53,6 +54,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbOTQyMDE2NzcsLTYxODM3NDI1MCwtMTI5Mz
-kwODc2MCwxOTc3OTM0Njc5XX0=
+eyJoaXN0b3J5IjpbLTM0NDg4NDMzOCw5NDIwMTY3NywtNjE4Mz
+c0MjUwLC0xMjkzOTA4NzYwLDE5Nzc5MzQ2NzldfQ==
 -->
