@@ -50,9 +50,9 @@ Top to bottom :
 -- it automatically resubscribes to his own destination based on hostname
 -- it stops all publishes until a connection is reliably present
 -- it's reactive stream driven based nanoAkka 
--- it should work on any Arduino having a serial or USB 
+-- it should work on any Arduino having a serial or USB CDC connection.
 - ... in progress 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQ4MzY0NjAwMiwtMTI5MzkwODc2MCwxOT
+eyJoaXN0b3J5IjpbLTYxODM3NDI1MCwtMTI5MzkwODc2MCwxOT
 c3OTM0Njc5XX0=
 -->
