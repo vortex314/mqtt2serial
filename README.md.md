@@ -50,10 +50,11 @@ Top to bottom :
   * it sends out a loopback message to itself, to check the E2E connectivity with MQTT
   * it automatically resubscribes to his own destination based on hostname
   * it stops all publishes until a connection is reliably present
-  *  it's reactive stream driven based nanoAkka 
+  *  it's reactive stream driven based nanoAkka ( see : [https://github.com/vortex314/nanoAkka/blob/master/README.md](https://github.com/vortex314/nanoAkka/blob/master/README.md) )
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTM0NDg4NDMzOCw5NDIwMTY3NywtNjE4Mz
-c0MjUwLC0xMjkzOTA4NzYwLDE5Nzc5MzQ2NzldfQ==
+eyJoaXN0b3J5IjpbLTEyMDQ3NDM5NDEsLTM0NDg4NDMzOCw5ND
+IwMTY3NywtNjE4Mzc0MjUwLC0xMjkzOTA4NzYwLDE5Nzc5MzQ2
+NzldfQ==
 -->
