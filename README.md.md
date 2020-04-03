@@ -46,9 +46,13 @@ Top to bottom :
 - simple : most Basic Arduino example. Just a serial println publishing a topic. 
 - lm4f120 : Serial Mqtt full example , it has more features :
 -- it will detect a failing connection
--- it sends out a loopback message to itself, to check the E2E connectivity wnanoAkka based example handling, communication connection, re-subscribing, loopback detection
+-- it sends out a loopback message to itself, to check the E2E connectivity with MQTT
+-- it automatically resubscribes to his own destination based on hostname
+-- it stops all publishes until a connection is reliably present
+-- it's reactive stream driven based nanoAkka 
+-- it should work on any Arduino having a serial or USB 
 - ... in progress 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMzAzNDUzNzAsLTEyOTM5MDg3NjAsMTk3Nz
-kzNDY3OV19
+eyJoaXN0b3J5IjpbLTQ4MzY0NjAwMiwtMTI5MzkwODc2MCwxOT
+c3OTM0Njc5XX0=
 -->
