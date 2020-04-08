@@ -2,7 +2,7 @@
 
 ## Synopsis
 This code enables Arduino based microcontrollers to use a serial port communication to send MQTT publish information to topics and subscribe to MQTT topics.
-This requires to have serial2mqtt run on the host side.
+This requires to have serial2mqtt (Linux X86 or ARM -Raspberry Pi ) run on the host side.
 Only QOS level 0 used.
 ### Conventions used in the code 
 
@@ -99,8 +99,8 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4Nzk1NTI3OCwtOTEyNjM3MjQxLDE2Mz
-M4MTEzNzgsMTgwOTgyOTM3OSwtODE0MzUzMzEsLTQ5NDM1NjYy
-NiwxNDM3Mjk1MzU2LC04MTA3MDAxNDksMTYyODk4NjUxNSwyMD
-kxNjIwMTc4XX0=
+eyJoaXN0b3J5IjpbLTE4NzA5MjU3MTIsLTE4Nzk1NTI3OCwtOT
+EyNjM3MjQxLDE2MzM4MTEzNzgsMTgwOTgyOTM3OSwtODE0MzUz
+MzEsLTQ5NDM1NjYyNiwxNDM3Mjk1MzU2LC04MTA3MDAxNDksMT
+YyODk4NjUxNSwyMDkxNjIwMTc4XX0=
 -->
