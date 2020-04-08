@@ -6,6 +6,7 @@ MqttSerial::MqttSerial(Thread &thr)
       keepAliveTimer(thr, TIMER_KEEP_ALIVE, 1000, true),
       connectTimer(thr, TIMER_CONNECT, 3000, true) {
   _rxdString.reserve(256);
+  incoming.async(thr);
 }
 MqttSerial::~MqttSerial() {}
 
@@ -59,10 +60,10 @@ void MqttSerial::on(const TimerMsg &tm) {
 void MqttSerial::request() {}
 
 void MqttSerial::onRxd(void *me) {
-  //  INFO(" RXD > %d", Serial.available());
   MqttSerial *mqttSerial = (MqttSerial *)me;
   String s;
   s = Serial.readString();
+//    INFO(" RXD >> %d", s.length());
   for (uint32_t i = 0; i < s.length(); i++)
     mqttSerial->handleSerialByte(s.charAt(i));
 }
@@ -87,6 +88,7 @@ void MqttSerial::rxdSerial(String &rxdString) {
       connected = true;
     } else {
       String topic = array[1];
+      INFO(" RXD >>> %s:%s",topic.substring(_hostPrefix.length()).c_str(),_hostPrefix.c_str());
       incoming.on({topic.substring(_hostPrefix.length()), array[2]});
     }
   } else {
