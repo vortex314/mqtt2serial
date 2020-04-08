@@ -1,5 +1,8 @@
 # Arduino code mqtt over serial
 
+## Synopsis
+
+## Build process ( draft )
  - Framework = Arduino
 - IDE = Visual Code + PlatformIO
 
@@ -54,5 +57,5 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjA5MTYyMDE3OF19
+eyJoaXN0b3J5IjpbLTgwNDg4NzcxNywyMDkxNjIwMTc4XX0=
 -->
