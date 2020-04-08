@@ -19,7 +19,9 @@ cd mqtt2serial
 - then activate serial2mqtt , adapt the serial2mqtt.json file for the correct ports
 ```
 cd ..\serial2mqtt
-cd 
+cd build
+unzip serial2mqtt.x86_64.zip
+
 unzip
 cd ..
 ### LM4F120 Launchpad 
@@ -73,6 +75,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTg1NTUxNTMxNiwtODEwNzAwMTQ5LDE2Mj
-g5ODY1MTUsMjA5MTYyMDE3OF19
+eyJoaXN0b3J5IjpbLTEzMzQ3MTY1NzIsLTgxMDcwMDE0OSwxNj
+I4OTg2NTE1LDIwOTE2MjAxNzhdfQ==
 -->
