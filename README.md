@@ -2,7 +2,7 @@
 
 ## Synopsis
 This code enables Arduino based microcontrollers to use a serial port communication to send MQTT publish information to topics and subscribe to MQTT topics
-Conventions used in the code 
+### Conventions used in the code 
 Publish happens on **src/device/object/property**
 Subscribe happens on **dst/device/#**
 The **device** part is also the internal hostname.
@@ -89,6 +89,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTM1NDgxNjY1LC04MTA3MDAxNDksMTYyOD
-k4NjUxNSwyMDkxNjIwMTc4XX0=
+eyJoaXN0b3J5IjpbMTQzNzI5NTM1NiwtODEwNzAwMTQ5LDE2Mj
+g5ODY1MTUsMjA5MTYyMDE3OF19
 -->
