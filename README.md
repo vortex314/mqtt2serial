@@ -14,6 +14,7 @@ x == mqtt.topic<uint32_t>("object1/x")
 x=1; // will publish the value on MQTT 
 ```
 Publishing topic=dst/device/object1/x , message=123 will result that x becomes 123 in the Arduino.
+
 ## Build it
  - Framework = Arduino
 - IDE = Visual Code + PlatformIO
@@ -39,6 +40,9 @@ cd ..
 build/Debug/serial2mqtt
 ```
 Have fun.
+## Implementation details
+- The Arduino sends out continously every x seconds a loopback message on which it also subscribes : dst/device/system/loopback:true
+- This enables to detect if the there is an E
 ### LM4F120 Launchpad 
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/stellaris.jpeg" width="200" title="Stellaris Launchpad 5$">
 
@@ -90,6 +94,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE1ODgyNjQ2MzksMTQzNzI5NTM1NiwtOD
-EwNzAwMTQ5LDE2Mjg5ODY1MTUsMjA5MTYyMDE3OF19
+eyJoaXN0b3J5IjpbLTcwMDg0MjM1OCwxNDM3Mjk1MzU2LC04MT
+A3MDAxNDksMTYyODk4NjUxNSwyMDkxNjIwMTc4XX0=
 -->
