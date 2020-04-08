@@ -6,7 +6,7 @@
  - Framework = Arduino
 - IDE = Visual Code + PlatformIO
 
-```shell
+```Shell
 git clone https://github.com/vortex314/mqtt2serial.git
 git clone https://github.com/vortex314/nanoAkka.git
 git clone https://github.com/vortex314/Common.git
@@ -17,6 +17,11 @@ cd mqtt2serial
  - compile and dowload to controller, check out the ports used in the platformio.ini. Could differ on your system
 - check if the serial port is sending out JSON arrays to subscribe and do loopback tests. Use minciom or the in-build terminal of platformio
 - then activate serial2mqtt , adapt the serial2mqtt.json file for the correct ports
+```
+cd ..\serial2mqtt
+cd 
+unzip
+cd ..
 ### LM4F120 Launchpad 
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/stellaris.jpeg" width="200" title="Stellaris Launchpad 5$">
 
@@ -68,6 +73,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTgxMDcwMDE0OSwxNjI4OTg2NTE1LDIwOT
-E2MjAxNzhdfQ==
+eyJoaXN0b3J5IjpbLTg1NTUxNTMxNiwtODEwNzAwMTQ5LDE2Mj
+g5ODY1MTUsMjA5MTYyMDE3OF19
 -->
