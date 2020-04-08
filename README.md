@@ -12,8 +12,8 @@ x.pass(true);
 x == mqtt.topic<uint32_t>("object1/x")
 x=1; // will publish the value on MQTT 
 ```
-Publishing topic=dst/device/object1/x , message
-## Build process ( draft )
+Publishing topic=dst/device/object1/x , message=123 will result that x becomes 123 in the Arduino.
+## Build it
  - Framework = Arduino
 - IDE = Visual Code + PlatformIO
 
@@ -25,7 +25,8 @@ git clone https://github.com/bblanchon/ArduinoJson
 cd mqtt2serial
 ```
 - use visual code with platformio extension to open any of the projects
- - compile and dowload to controller, check out the ports used in the platformio.ini. Could differ on your system
+ - compile and download to controller, check out the ports used in the platformio.ini. Could differ on your system
+## Run it
 - check if the serial port is sending out JSON arrays to subscribe and do loopback tests. Use minciom or the in-build terminal of platformio
 - then activate serial2mqtt , adapt the serial2mqtt.json file for the correct ports
 ```
@@ -88,6 +89,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbNTE4NjUyODMyLC04MTA3MDAxNDksMTYyOD
+eyJoaXN0b3J5IjpbLTM1NDgxNjY1LC04MTA3MDAxNDksMTYyOD
 k4NjUxNSwyMDkxNjIwMTc4XX0=
 -->
