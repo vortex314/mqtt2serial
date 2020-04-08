@@ -6,7 +6,10 @@ Conventions used in the code
 Publish happens on **src/device/object/property**
 Subscribe happens on **dst/device/#**
 The **device** part is also the internal hostname.
-
+```c
+ValueFlow<uint32_t> x;
+x == mqtt.topic<uint32_t>("object1/x")
+```
 ## Build process ( draft )
  - Framework = Arduino
 - IDE = Visual Code + PlatformIO
@@ -82,6 +85,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTYxMDMzNjM2OCwtODEwNzAwMTQ5LDE2Mj
+eyJoaXN0b3J5IjpbLTkwNjMzMTU0MiwtODEwNzAwMTQ5LDE2Mj
 g5ODY1MTUsMjA5MTYyMDE3OF19
 -->
