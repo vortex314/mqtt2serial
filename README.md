@@ -29,8 +29,8 @@ cd mqtt2serial
 - use visual code with platformio extension to open any of the projects
  - compile and download to controller, check out the ports used in the platformio.ini. Could differ on your system
 ## Run it
-- check if the serial port is sending out JSON arrays to subscribe and do loopback tests. Use minciom or the in-build terminal of platformio
-- then activate serial2mqtt , adapt the serial2mqtt.json file for the correct ports
+- check if the serial port is sending out JSON arrays to subscribe and do loopback tests. Use minicom or the in-build terminal of platformio
+- then activate serial2mqtt , adapt the serial2mqtt.json file for the correct ports. Don't forget to close the connection from the previous step.
 ```
 cd ../serial2mqtt
 cd build
@@ -97,7 +97,7 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTgxNDM1MzMxLC00OTQzNTY2MjYsMTQzNz
-I5NTM1NiwtODEwNzAwMTQ5LDE2Mjg5ODY1MTUsMjA5MTYyMDE3
-OF19
+eyJoaXN0b3J5IjpbLTQ0ODkyNjY4NiwtODE0MzUzMzEsLTQ5ND
+M1NjYyNiwxNDM3Mjk1MzU2LC04MTA3MDAxNDksMTYyODk4NjUx
+NSwyMDkxNjIwMTc4XX0=
 -->
