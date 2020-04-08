@@ -6,6 +6,14 @@
  - Framework = Arduino
 - IDE = Visual Code + PlatformIO
 
+```shell
+git clone https://github.com/vortex314/mqtt2serial.git
+git clone [https://github.com/vortex314/nanoAkka.git](https://github.com/vortex314/nanoAkka.git)  
+git clone [https://github.com/vortex314/Common.git](https://github.com/vortex314/Common.git)  
+git clone [https://github.com/bblanchon/ArduinoJson](https://github.com/bblanchon/ArduinoJson)
+cd mqtt2serial
+⇒ use v
+```
 ### LM4F120 Launchpad 
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/stellaris.jpeg" width="200" title="Stellaris Launchpad 5$">
 
@@ -57,5 +65,5 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTgwNDg4NzcxNywyMDkxNjIwMTc4XX0=
+eyJoaXN0b3J5IjpbLTg3OTA0Njk1OSwyMDkxNjIwMTc4XX0=
 -->
