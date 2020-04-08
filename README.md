@@ -15,11 +15,13 @@ x.pass(true);
 x == mqtt.topic<uint32_t>("object1/x")
 x=1; // will publish the value on MQTT 
 ```
-See also : https://github.com/vortex314/nanoAkka/blob/master/README.md
 
 Publishing topic=dst/device/object1/x , message=123 will result that x becomes 123 in the Arduino.
+
 Most basic type are supported : string, bool, float, integer types as it uses ArduinoJson variants.
 Complex JSON object types need to be composed by the application itself.
+See also : https://github.com/vortex314/nanoAkka/blob/master/README.md
+
 
 ## Build it
  - Framework = Arduino
@@ -103,8 +105,8 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTE1NTkwODUwNSwtMTg3OTU1Mjc4LC05MT
-I2MzcyNDEsMTYzMzgxMTM3OCwxODA5ODI5Mzc5LC04MTQzNTMz
-MSwtNDk0MzU2NjI2LDE0MzcyOTUzNTYsLTgxMDcwMDE0OSwxNj
-I4OTg2NTE1LDIwOTE2MjAxNzhdfQ==
+eyJoaXN0b3J5IjpbMjI2Mzg0NzY1LC0xODc5NTUyNzgsLTkxMj
+YzNzI0MSwxNjMzODExMzc4LDE4MDk4MjkzNzksLTgxNDM1MzMx
+LC00OTQzNTY2MjYsMTQzNzI5NTM1NiwtODEwNzAwMTQ5LDE2Mj
+g5ODY1MTUsMjA5MTYyMDE3OF19
 -->
