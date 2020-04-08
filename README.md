@@ -6,7 +6,7 @@ This code enables Arduino based microcontrollers to use a serial port communicat
 
  - Publish happens on **src/device/object/property** 
  - Subscribe happens on **dst/device/#** 
- - The **device** part is also the internal hostname.
+ - The **device** part is also the internal hostname. It can be configured via the options in platformio.ini.
 ```c++
 ValueFlow<uint32_t> x;
 x.pass(true);
@@ -97,6 +97,7 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQ5NDM1NjYyNiwxNDM3Mjk1MzU2LC04MT
-A3MDAxNDksMTYyODk4NjUxNSwyMDkxNjIwMTc4XX0=
+eyJoaXN0b3J5IjpbLTgxNDM1MzMxLC00OTQzNTY2MjYsMTQzNz
+I5NTM1NiwtODEwNzAwMTQ5LDE2Mjg5ODY1MTUsMjA5MTYyMDE3
+OF19
 -->
