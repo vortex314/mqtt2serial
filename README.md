@@ -28,7 +28,7 @@ git clone https://github.com/vortex314/Common.git
 git clone https://github.com/bblanchon/ArduinoJson
 cd mqtt2serial
 ```
-- use visual code with platformio extension to open any of the projects
+- use visual code with platformio extension to open any of the projects within mqtt2serial
  - compile and download to controller, check out the ports used in the platformio.ini. Could differ on your system
 ## Run it
 - check if the serial port is sending out JSON arrays to subscribe and do loopback tests. Use minicom or the in-build terminal of platformio
@@ -99,7 +99,8 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTkxMjYzNzI0MSwxNjMzODExMzc4LDE4MD
-k4MjkzNzksLTgxNDM1MzMxLC00OTQzNTY2MjYsMTQzNzI5NTM1
-NiwtODEwNzAwMTQ5LDE2Mjg5ODY1MTUsMjA5MTYyMDE3OF19
+eyJoaXN0b3J5IjpbLTE4Nzk1NTI3OCwtOTEyNjM3MjQxLDE2Mz
+M4MTEzNzgsMTgwOTgyOTM3OSwtODE0MzUzMzEsLTQ5NDM1NjYy
+NiwxNDM3Mjk1MzU2LC04MTA3MDAxNDksMTYyODk4NjUxNSwyMD
+kxNjIwMTc4XX0=
 -->
