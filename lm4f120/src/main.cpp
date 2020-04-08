@@ -115,37 +115,16 @@ Button *Button::_button1 = 0;
 Button *Button::_button2 = 0;
 //______________________________________________________________________
 //
-class Pinger : public Actor {
-  int _counter = 0;
 
- public:
-  ValueSource<int> out;
-  Sink<int, 4> in;
-  Pinger(Thread &thr) : Actor(thr) {
-    in.async(thread(), [&](const int &i) { out = _counter++; });
-  }
-  void start() { out = _counter++; }
-};
-#define DELTA 50000
 class Echo : public Actor {
   uint64_t _startTime;
 
  public:
-  ValueSource<int> msgPerMsec = 0;
   ValueSource<int> out;
   Sink<int, 4> in;
   Echo(Thread &thr) : Actor(thr) {
     in.async(thread(), [&](const int &i) {
-      //      INFO("");
-      if (i % DELTA == 0) {
-        uint64_t endTime = Sys::millis();
-        uint32_t delta = endTime - _startTime;
-        msgPerMsec = DELTA / delta;
-        INFO(" handled %lu messages in %u msec = %d msg/msec ", DELTA, delta,
-             msgPerMsec());
-        _startTime = Sys::millis();
-      }
-      out = i;
+      out = i+1;
     });
   }
 };
@@ -183,7 +162,6 @@ Button button1(mainThread, 1);
 Button button2(mainThread, 2);
 Poller poller(mainThread);
 MqttSerial mqtt(mainThread);
-Pinger pinger(mainThread);
 Echo echo(mainThread);
 
 LambdaSource<uint32_t> systemHeap([]() { return freeMemory(); });
@@ -217,18 +195,14 @@ void setup() {
   systemBoard >> mqtt.toTopic<const char *>("system/board");
   systemCpu >> mqtt.toTopic<const char *>("system/cpu");
 
-  systemBoard >> ([](const char *board) { INFO("board : %s ", board); });
-  poller.connected.on(true);
   poller(systemHostname)(systemHeap)(systemBuild)(systemUptime)(systemBoard)(
       systemCpu);
 
   button1 >> mqtt.toTopic<bool>("button/button1");
   button2 >> mqtt.toTopic<bool>("button/button2");
   poller(button1)(button2);
-  pinger.out >> echo.in;  // the wiring
-  echo.out >> pinger.in;
-  pinger.start();
-  Serial.println(" sizeof(int) : " + String(sizeof(int)));
+  mqtt.fromTopic<int>("system/echo") >> echo.in;  // the wiring
+  echo.out >> mqtt.toTopic<int>("system/echo");
 }
 
 void loop() { mainThread.loop(); }
