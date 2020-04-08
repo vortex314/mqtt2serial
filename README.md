@@ -18,12 +18,14 @@ cd mqtt2serial
 - check if the serial port is sending out JSON arrays to subscribe and do loopback tests. Use minciom or the in-build terminal of platformio
 - then activate serial2mqtt , adapt the serial2mqtt.json file for the correct ports
 ```
-cd ..\serial2mqtt
+cd ../serial2mqtt
 cd build
-unzip serial2mqtt.x86_64.zip
-
-unzip
+unzip serial2mqtt.x86_64.zip # for Linux 64bit
 cd ..
+# check serial2mqtt.json for the correct settings
+build/Debug/serial2mqtt
+```
+Have fun.
 ### LM4F120 Launchpad 
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/stellaris.jpeg" width="200" title="Stellaris Launchpad 5$">
 
@@ -75,6 +77,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTEzMzQ3MTY1NzIsLTgxMDcwMDE0OSwxNj
-I4OTg2NTE1LDIwOTE2MjAxNzhdfQ==
+eyJoaXN0b3J5IjpbMzIyMTE3NDAwLC04MTA3MDAxNDksMTYyOD
+k4NjUxNSwyMDkxNjIwMTc4XX0=
 -->
