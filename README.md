@@ -4,9 +4,9 @@
 This code enables Arduino based microcontrollers to use a serial port communication to send MQTT publish information to topics and subscribe to MQTT topics
 ### Conventions used in the code 
 
- - Publish happens on **src/device/object/property** 
- - Subscribe happens on **dst/device/#** 
- - The **device** part is also the internal hostname. It can be configured via the options in platformio.ini.
+ - MQTT Publish happens on **src/device/object/property** 
+ - MQTT Subscribe happens on **dst/device/#** 
+ - The **device** part is also the internal hostname. It can be configured via the options (-DHOSTNAME ) in platformio.ini.
 ```c++
 ValueFlow<uint32_t> x;
 x.pass(true);
@@ -97,7 +97,7 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTQ0ODkyNjY4NiwtODE0MzUzMzEsLTQ5ND
+eyJoaXN0b3J5IjpbMTgwOTgyOTM3OSwtODE0MzUzMzEsLTQ5ND
 M1NjYyNiwxNDM3Mjk1MzU2LC04MTA3MDAxNDksMTYyODk4NjUx
 NSwyMDkxNjIwMTc4XX0=
 -->
