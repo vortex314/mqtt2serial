@@ -1,7 +1,9 @@
 # Arduino code mqtt over serial
 
 ## Synopsis
-
+This code enables Arduino based microcontrollers to use a serial port communication to send MQTT publish information to topics and subscribe to MQTT topics
+Conventions used in the code 
+Publish happens on
 ## Build process ( draft )
  - Framework = Arduino
 - IDE = Visual Code + PlatformIO
@@ -77,6 +79,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMzIyMTE3NDAwLC04MTA3MDAxNDksMTYyOD
-k4NjUxNSwyMDkxNjIwMTc4XX0=
+eyJoaXN0b3J5IjpbMTgyNjkxNTUxMSwtODEwNzAwMTQ5LDE2Mj
+g5ODY1MTUsMjA5MTYyMDE3OF19
 -->
