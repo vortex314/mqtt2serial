@@ -44,7 +44,8 @@ Have fun.
 - The Arduino sends out continously every x seconds a loopback message on which it also subscribes : *dst/device/system/loopback:true*
 - This enables to detect if the there is an E2E connection with the broker.
 - If no response is received it will send out also repetitively the subscribe command to *dst/device/#*
-- As long as there is no loopback and subscr
+- As long as there is no loopback and subscribe established, it will not publish any further topics. 
+- The Led of the board is used to indicate this connection status, it blinks fast if there is connection, it slows down when the connection is not established or gone. 
 ### LM4F120 Launchpad 
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/stellaris.jpeg" width="200" title="Stellaris Launchpad 5$">
 
@@ -96,6 +97,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjExMTg5Nzg4NywxNDM3Mjk1MzU2LC04MT
+eyJoaXN0b3J5IjpbLTQ5NDM1NjYyNiwxNDM3Mjk1MzU2LC04MT
 A3MDAxNDksMTYyODk4NjUxNSwyMDkxNjIwMTc4XX0=
 -->
