@@ -8,9 +8,9 @@
 
 ```shell
 git clone https://github.com/vortex314/mqtt2serial.git
-git clone [https://github.com/vortex314/nanoAkka.git](https://github.com/vortex314/nanoAkka.git)  
-git clone [https://github.com/vortex314/Common.git](https://github.com/vortex314/Common.git)  
-git clone [https://github.com/bblanchon/ArduinoJson](https://github.com/bblanchon/ArduinoJson)
+git clone https://github.com/vortex314/nanoAkka.git
+git clone https://github.com/vortex314/Common.git
+git clone https://github.com/bblanchon/ArduinoJson
 cd mqtt2serial
 ```
 - use visual code with platformio extension to open any of the projects
@@ -68,5 +68,6 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTYyODk4NjUxNSwyMDkxNjIwMTc4XX0=
+eyJoaXN0b3J5IjpbLTgxMDcwMDE0OSwxNjI4OTg2NTE1LDIwOT
+E2MjAxNzhdfQ==
 -->
