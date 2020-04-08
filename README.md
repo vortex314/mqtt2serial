@@ -47,7 +47,7 @@ Have fun.
 - This enables to detect if the there is an E2E connection with the broker.
 - If no response is received it will send out also repetitively the subscribe command to *dst/device/#*
 - As long as there is no loopback and subscribe established, it will not publish any further topics. 
-- The Led of the board is used to indicate this connection status, it blinks fast if there is connection, it slows down when the connection is not established or gone. 
+- The Led of the board is used to indicate this connection status, it blinks slow if there is connection to MQTT, it slows down when the connection is not established or gone. 
 ### LM4F120 Launchpad 
 <img src="https://github.com/vortex314/mqtt2serial/raw/master/doc/stellaris.jpeg" width="200" title="Stellaris Launchpad 5$">
 
@@ -99,7 +99,8 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMTYzMzgxMTM3OCwxODA5ODI5Mzc5LC04MT
-QzNTMzMSwtNDk0MzU2NjI2LDE0MzcyOTUzNTYsLTgxMDcwMDE0
-OSwxNjI4OTg2NTE1LDIwOTE2MjAxNzhdfQ==
+eyJoaXN0b3J5IjpbLTEzMTQ5Nzg4MjYsMTYzMzgxMTM3OCwxOD
+A5ODI5Mzc5LC04MTQzNTMzMSwtNDk0MzU2NjI2LDE0MzcyOTUz
+NTYsLTgxMDcwMDE0OSwxNjI4OTg2NTE1LDIwOTE2MjAxNzhdfQ
+==
 -->
