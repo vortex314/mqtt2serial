@@ -16,6 +16,8 @@ x == mqtt.topic<uint32_t>("object1/x")
 x=1; // will publish the value on MQTT 
 ```
 Publishing topic=dst/device/object1/x , message=123 will result that x becomes 123 in the Arduino.
+Most basic type are supported : string, bool, float, integer types as it uses ArduinoJson variants.
+Complex JSON object types 
 
 ## Build it
  - Framework = Arduino
@@ -99,8 +101,8 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbLTE4NzA5MjU3MTIsLTE4Nzk1NTI3OCwtOT
-EyNjM3MjQxLDE2MzM4MTEzNzgsMTgwOTgyOTM3OSwtODE0MzUz
-MzEsLTQ5NDM1NjYyNiwxNDM3Mjk1MzU2LC04MTA3MDAxNDksMT
-YyODk4NjUxNSwyMDkxNjIwMTc4XX0=
+eyJoaXN0b3J5IjpbNTc0NzExMzYyLC0xODc5NTUyNzgsLTkxMj
+YzNzI0MSwxNjMzODExMzc4LDE4MDk4MjkzNzksLTgxNDM1MzMx
+LC00OTQzNTY2MjYsMTQzNzI5NTM1NiwtODEwNzAwMTQ5LDE2Mj
+g5ODY1MTUsMjA5MTYyMDE3OF19
 -->
