@@ -28,6 +28,7 @@ See also : https://github.com/vortex314/nanoAkka/blob/master/README.md
 - IDE = Visual Code + PlatformIO
 
 ```Shell
+git clone https://github.com/vortex314/serial2mqtt.git
 git clone https://github.com/vortex314/mqtt2serial.git
 git clone https://github.com/vortex314/nanoAkka.git
 git clone https://github.com/vortex314/Common.git
@@ -105,8 +106,8 @@ Top to bottom :
   * it should work on any Arduino having a serial or USB CDC connection. Anyway on those in my possession
 
 <!--stackedit_data:
-eyJoaXN0b3J5IjpbMjI2Mzg0NzY1LC0xODc5NTUyNzgsLTkxMj
-YzNzI0MSwxNjMzODExMzc4LDE4MDk4MjkzNzksLTgxNDM1MzMx
-LC00OTQzNTY2MjYsMTQzNzI5NTM1NiwtODEwNzAwMTQ5LDE2Mj
-g5ODY1MTUsMjA5MTYyMDE3OF19
+eyJoaXN0b3J5IjpbLTE0MjkyMjc0ODMsMjI2Mzg0NzY1LC0xOD
+c5NTUyNzgsLTkxMjYzNzI0MSwxNjMzODExMzc4LDE4MDk4Mjkz
+NzksLTgxNDM1MzMxLC00OTQzNTY2MjYsMTQzNzI5NTM1NiwtOD
+EwNzAwMTQ5LDE2Mjg5ODY1MTUsMjA5MTYyMDE3OF19
 -->
