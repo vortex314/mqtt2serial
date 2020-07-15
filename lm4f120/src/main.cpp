@@ -4,14 +4,20 @@
 
 #include <deque>
 //#include <stdio.h>
+/*
 namespace std {
 void __throw_bad_function_call() {
   WARN("invalid function called");
   while (1)
     ;
 }
-}  // namespace std
-#define PIN_LED PF_2
+} 
+*/
+extern "C" void _exit() {
+
+}
+ // namespace std
+#define PIN_LED PF_3
 
 //_______________________________________________________________________________________________________________
 //

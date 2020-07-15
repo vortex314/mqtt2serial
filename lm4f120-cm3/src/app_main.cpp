@@ -3,6 +3,7 @@
 #include <Log.h>
 #include <Streams.h>
 #include <string>
+#include <deque>
 
 #include <libopencm3/cm3/nvic.h>
 #include <libopencm3/lm4f/gpio.h>
@@ -11,7 +12,8 @@
 #include <libopencm3/lm4f/systemcontrol.h>
 #include <libopencm3/lm4f/uart.h>
 
-class UART_TIVA : public UART {
+class UART_TIVA : public UART
+{
   FunctionPointer _onRxd;
   FunctionPointer _onTxd;
   void *_onRxdVoid = 0;
@@ -20,8 +22,8 @@ class UART_TIVA : public UART {
   uint32_t _pinTxd;
   uint32_t _pinRxd;
   uint32_t _baudrate;
-  CircBuf _rxdBuf;
-  CircBuf _txdBuf;
+  std::deque<uint8_t> _rxdBuf;
+  std::deque<uint8_t> _txdBuf;
 
   uint32_t _driver;
   uint32_t _dataBits = 8;
@@ -32,9 +34,10 @@ class UART_TIVA : public UART {
 public:
   static UART &create(uint32_t module) { return *new UART_TIVA(module); };
 
-  UART_TIVA(uint32_t module) : _txdBuf(256), _rxdBuf(256) { _module = module; }
+  UART_TIVA(uint32_t module) { _module = module; }
 
-  Erc mode(const char *m) {
+  Erc mode(const char *m)
+  {
     if (m[0] == '8')
       _dataBits = 8;
     else if (m[0] == '7')
@@ -61,7 +64,8 @@ public:
       return EINVAL;
     return E_OK;
   }
-  Erc init() {
+  Erc init()
+  {
     periph_clock_enable(RCC_GPIOA);
     /* Mux PA0 and PA1 to UART0 (alternate function 1) */
     gpio_set_af(GPIOA, 1, GPIO0 | GPIO1);
@@ -81,35 +85,57 @@ public:
     uart_enable(UART0);
     return E_OK;
   }
-  Erc deInit(){};
-  Erc setClock(uint32_t clock) { _baudrate = clock; };
+  Erc deInit(){return E_OK;};
+  Erc setClock(uint32_t clock) { _baudrate = clock; return E_OK;};
 
-  Erc write(const uint8_t *data, uint32_t length) {
+  Erc write(const uint8_t *data, uint32_t length)
+  {
     for (uint32_t idx = 0; idx < length; idx++)
       write(*(data + idx));
+      return E_OK;
   };
-  Erc write(uint8_t b) { _txdBuf.write(b);return E_OK; };
-  Erc read(Bytes &bytes) {
-    while (_rxdBuf.hasData())
-      bytes.write(_rxdBuf.read());
+  Erc write(uint8_t b)
+  {
+    _txdBuf.push_back(b);
+    return E_OK;
   };
-  uint8_t read() { return _rxdBuf.read(); };
-  void onRxd(FunctionPointer fp, void *context) {
+  Erc read(Bytes &bytes)
+  {
+    while (_rxdBuf.size())
+    {
+      auto b = _rxdBuf.front();
+      _rxdBuf.pop_front();
+      bytes.write(b);
+    }
+    return E_OK;
+  };
+  uint8_t read()
+  {
+    auto b = _rxdBuf.front();
+    _rxdBuf.pop_front();
+    return b;
+  };
+  void onRxd(FunctionPointer fp, void *context)
+  {
     _onRxd = fp;
     _onRxdVoid = context;
   };
-  void onTxd(FunctionPointer fp, void *context) {
+  void onTxd(FunctionPointer fp, void *context)
+  {
     _onTxd = fp;
     _onTxdVoid = context;
   };
-  uint32_t hasSpace() { return _txdBuf.hasSpace(); };
-  uint32_t hasData() { return _rxdBuf.hasData(); };
+  uint32_t hasSpace() { return 5; };
+  uint32_t hasData() { return _rxdBuf.size(); };
 };
 
-class Serial : public AsyncFlow<std::string> {};
+class Serial : public AsyncFlow<std::string>
+{
+};
 
-void app_main() {
-    UART& uart0=UART_TIVA::create(0);
-    std::string hw="Hello World";
-    uart0.write('A');
+void app_main()
+{
+  UART &uart0 = UART_TIVA::create(0);
+  std::string hw = "Hello World";
+  uart0.write('A');
 }

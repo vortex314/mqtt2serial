@@ -14,8 +14,8 @@
  * use this file to use any of libmaple's memory-related hooks (like
  * where the heap should live).
  */
-INCLUDE "C:\Temp\Platformio Projects\bluepill\src\mem-flash.inc"
-
+/*INCLUDE "C:\Temp\Platformio Projects\bluepill\src\mem-flash.inc"
+*/
 /* Provide memory region aliases for common.inc */
 REGION_ALIAS("REGION_TEXT", rom);
 REGION_ALIAS("REGION_DATA", ram);
