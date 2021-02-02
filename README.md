@@ -28,11 +28,11 @@ See also : https://github.com/vortex314/nanoAkka/blob/master/README.md
 - IDE = Visual Code + PlatformIO
 
 ```Shell
-git clone https://github.com/vortex314/serial2mqtt.git
-git clone https://github.com/vortex314/mqtt2serial.git
-git clone https://github.com/vortex314/nanoAkka.git
-git clone https://github.com/vortex314/Common.git
 git clone https://github.com/bblanchon/ArduinoJson
+git clone https://github.com/vortex314/mqtt2serial.git
+git clone https://github.com/vortex314/limero.git
+
+git clone https://github.com/vortex314/serial2mqtt.git
 cd mqtt2serial
 ```
 - use visual code with platformio extension to open any of the projects within mqtt2serial
