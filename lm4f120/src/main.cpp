@@ -7,7 +7,6 @@
 #define PIN_BUTTON PF_4
 #include <LedBlinker.h>
 #include <Button.h>
-#include <Poller.h>
 
 extern "C" void _exit() {}
 
